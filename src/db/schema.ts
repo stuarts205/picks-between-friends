@@ -11,6 +11,7 @@ export const user = pgTable("user", {
   week: integer("week"),
   weeklyPoints: integer("weekly_points"),
   overAllPoints: integer("overall_points"),
+  role: integer("role"), // 0 = user, 1 = admin
   createdAt: timestamp("created_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),

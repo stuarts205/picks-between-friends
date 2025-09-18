@@ -19,6 +19,7 @@ import { OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -54,6 +55,7 @@ export const SignUpView = () => {
         name: values.name,
         email: values.email,
         password: values.password,
+        callbackURL: '/'
       },
       {
         onSuccess: () => {
@@ -166,7 +168,7 @@ export const SignUpView = () => {
                 <Button type="submit" className="w-full" disabled={pending}>
                   Sign Up
                 </Button>
-                <div
+                {/* <div
                   className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0
                     after:flex after:items-center after:border-t"
                 >
@@ -181,7 +183,7 @@ export const SignUpView = () => {
                     className="w-full"
                     disabled={pending}
                   >
-                    Google
+                    <FaGoogle />
                   </Button>
                   <Button
                     variant="outline"
@@ -189,9 +191,9 @@ export const SignUpView = () => {
                     className="w-full"
                     disabled={pending}
                   >
-                    Github
+                    <FaGithub />
                   </Button>
-                </div>
+                </div> */}
                 <div className="text-center text-sm">
                   Already have an account?{" "}
                   <Link
