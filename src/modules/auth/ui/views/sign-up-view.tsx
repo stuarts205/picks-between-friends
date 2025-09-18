@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import React, { useState } from "react";
-import { set, z } from "zod";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -80,7 +80,7 @@ export const SignUpView = () => {
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Let&apos;s get started</h1>
                   <p className="text-muted-foreground text-balance">
-                    Create a your account
+                    Create your account
                   </p>
                 </div>
                 <div className="grid gap-3">
@@ -164,7 +164,7 @@ export const SignUpView = () => {
                   </Alert>
                 )}
                 <Button type="submit" className="w-full" disabled={pending}>
-                  Sign In
+                  Sign Up
                 </Button>
                 <div
                   className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0
@@ -193,7 +193,7 @@ export const SignUpView = () => {
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Aleady have an account?{" "}
+                  Already have an account?{" "}
                   <Link
                     href="/sign-in"
                     className="underline underline-offset-4"
