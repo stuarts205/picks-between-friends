@@ -20,16 +20,21 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+import { GiAmericanFootballPlayer } from "react-icons/gi";
 
-const formSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
-  email: z.string().email(),
-  password: z.string().min(1, { message: "Password is required" }),
-  confirmPassword: z.string().min(1, { message: "Confirm Password is required" }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const formSchema = z
+  .object({
+    name: z.string().min(1, { message: "Name is required" }),
+    email: z.string().email(),
+    password: z.string().min(1, { message: "Password is required" }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Confirm Password is required" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export const SignUpView = () => {
   const router = useRouter();
@@ -55,7 +60,7 @@ export const SignUpView = () => {
         name: values.name,
         email: values.email,
         password: values.password,
-        callbackURL: '/'
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
@@ -93,10 +98,7 @@ export const SignUpView = () => {
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="eg: John Doe"
-                            {...field}
-                          />
+                          <Input placeholder="eg: John Doe" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -207,9 +209,12 @@ export const SignUpView = () => {
             </form>
           </Form>
 
-          <div className="bg-radial from-green-700 to-green-900 relative hidden md:flex flex-col gap-y-4 items-center justify-center">
-            <img src="/logo.svg" alt="logo" className="h-[92px] w-[92px]" />
-            <p className="text-2xl font-semibold text-white">Meet.AI</p>
+          <div
+            className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 
+            items-center justify-center"
+          >
+            <GiAmericanFootballPlayer className="text-white text-6xl" />
+            <p className="text-2xl font-semibold text-white">Spencs Picks</p>
           </div>
         </CardContent>
       </Card>
