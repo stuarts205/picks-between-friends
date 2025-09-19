@@ -20,6 +20,7 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+import { GiAmericanFootballPlayer } from "react-icons/gi";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -47,7 +48,7 @@ export const SignInView = () => {
       {
         email: values.email,
         password: values.password,
-        callbackURL: '/'
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
@@ -162,13 +163,19 @@ export const SignInView = () => {
             </form>
           </Form>
 
-          <div className="bg-radial from-green-700 to-green-900 relative hidden md:flex flex-col gap-y-4 items-center justify-center">
-            <img src="/logo.svg" alt="logo" className="h-[92px] w-[92px]" />
-            <p className="text-2xl font-semibold text-white">Meet.AI</p>
+          <div
+            className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 
+            items-center justify-center"
+          >
+            <GiAmericanFootballPlayer className="text-white text-6xl" />
+            <p className="text-2xl font-semibold text-white">Spencs Picks</p>
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+      <div
+        className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs 
+        text-balance *:[a]:underline *:[a]:underline-offset-4"
+      >
         By signing in, you agree to our{" "}
         <a href="/terms" target="_blank" rel="noreferrer">
           Terms of Service
