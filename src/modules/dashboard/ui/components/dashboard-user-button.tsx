@@ -59,7 +59,7 @@ export const DashboardUserButton = () => {
         <DropdownMenuLabel>
           <div className="flex flex-col gap-1">
             <span className="font-medium truncate">{data.user.name}</span>
-            <span className="text=sm font-normal text-muted-foreground truncate">
+            <span className="text-sm font-normal text-muted-foreground truncate">
               {data.user.email}
             </span>
           </div>
@@ -67,7 +67,7 @@ export const DashboardUserButton = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={onLogout}
-          className="'cursor-pointer flex items-center justify-between"
+          className="cursor-pointer flex items-center justify-between"
         >
           Log out
           <LogOutIcon className="size-4" />
