@@ -1,4 +1,11 @@
-import { pgTable, text, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  integer,
+} from "drizzle-orm/pg-core";
+import { use } from "react";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -62,4 +69,56 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").$defaultFn(
     () => /* @__PURE__ */ new Date()
   ),
+});
+
+export const team = pgTable("team", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  nickname: text("nickname").notNull(),
+  abbreviation: text("abbreviation"),
+  conference: text("conference"),
+  logo: text("logo"),
+});
+
+export const game = pgTable("game", {
+  id: text("id").primaryKey(),
+  gameid: text("gameid"),
+  week: integer("week").notNull(),
+  home: text("home").notNull(),
+  away: text("away").notNull(),
+  spread: text("spread").notNull(),
+  league: text("league").notNull(),
+  homeId: text("home_id")
+    .notNull()
+    .references(() => team.id),
+  awayId: text("away_id")
+    .notNull()
+    .references(() => team.id),
+  favorite: text("favorite").notNull(),
+  selected: boolean("selected"),
+  winner: text("winner"),
+  favoriteWin: boolean("favorite_win"),
+});
+
+export const season = pgTable("season", {
+  id: text("id").primaryKey(),
+  year: integer("year").notNull(),
+  week: integer("week").notNull(),
+  startDate: text("start_date").notNull(),
+});
+
+export const pick = pgTable("pick", {
+  id: text("id").primaryKey(),
+  teamId: text("team_id")
+    .notNull()
+    .references(() => team.id),
+  gameId: text("game_id")
+    .notNull()
+    .references(() => game.id),
+  win: boolean("win"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id),
+  userName: text("user_name"),
+  week: integer("week").notNull(),
 });
