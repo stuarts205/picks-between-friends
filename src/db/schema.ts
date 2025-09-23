@@ -5,7 +5,7 @@ import {
   boolean,
   integer,
 } from "drizzle-orm/pg-core";
-import { use } from "react";
+import { nanoid } from "nanoid";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -72,12 +72,15 @@ export const verification = pgTable("verification", {
 });
 
 export const team = pgTable("team", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
   name: text("name").notNull(),
   nickname: text("nickname").notNull(),
   abbreviation: text("abbreviation"),
   conference: text("conference"),
   logo: text("logo"),
+  league: text("league").notNull(),
 });
 
 export const game = pgTable("game", {
