@@ -7,30 +7,13 @@ import React from "react";
 
 const UsersView = () => {
   const trpc = useTRPC();
-  const { data, isLoading, isError } = useSuspenseQuery(
+  const { data } = useSuspenseQuery(
     trpc.users.getMany.queryOptions()
   );
 
-//   if (isLoading) {
-//     return (
-//         <LoadingState
-//             title="Loading users"
-//             description="Please wait while we fetch the user list."
-//         />
-//     )
-//   }
-
-//   if (isError){
-//     return (
-//         <ErrorState
-//             title="Error loading users"
-//             description="There was an error fetching the user list. Please try again."
-//         />
-//     )
-//   };
-
   return (
-    <div>{JSON.stringify(data, null, 2)}</div>
+    <div>
+      {JSON.stringify(data, null, 2)}</div>
   ) 
 };
 
