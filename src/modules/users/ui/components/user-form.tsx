@@ -17,9 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { init } from "next/dist/compiled/webpack/webpack";
 import { toast } from "sonner";
-import { on } from "events";
 import { authClient } from "@/lib/auth-client";
 
 interface UserFormProps {
