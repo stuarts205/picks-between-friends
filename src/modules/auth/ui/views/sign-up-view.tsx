@@ -26,12 +26,12 @@ const formSchema = z
   .object({
     name: z.string().min(1, { message: "Name is required" }),
     email: z.string().email(),
-    password: z.string().min(1, { message: "Password is required" }),
+    hashedPassword: z.string().min(1, { message: "Password is required" }),
     confirmPassword: z
       .string()
       .min(1, { message: "Confirm Password is required" }),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.hashedPassword === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
@@ -46,7 +46,7 @@ export const SignUpView = () => {
     defaultValues: {
       name: "",
       email: "",
-      password: "",
+      hashedPassword: "",
       confirmPassword: "",
     },
   });
@@ -59,7 +59,7 @@ export const SignUpView = () => {
       {
         name: values.name,
         email: values.email,
-        password: values.password,
+        password: values.hashedPassword,
         callbackURL: "/",
       },
       {
@@ -126,7 +126,7 @@ export const SignUpView = () => {
                 <div className="grid gap-3">
                   <FormField
                     control={form.control}
-                    name="password"
+                    name="hashedPassword"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
