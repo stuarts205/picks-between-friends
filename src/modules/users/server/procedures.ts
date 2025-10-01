@@ -7,14 +7,16 @@ import {
 } from "@/trpc/init";
 import { usersInsertSchema } from "../schemas";
 import z from "zod";
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 
 export const usersRouter = createTRPCRouter({
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       const [existingUser] = await db
-        .select()
+        .select({
+          ...getTableColumns(user),
+        })
         .from(user)
         .where(eq(user.id, input.id));
       return existingUser;
