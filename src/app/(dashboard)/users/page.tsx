@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { loadSearchParams } from "@/modules/users/params";
 import UsersListHeader from "@/modules/users/ui/components/users-list-header";
 import UsersView, {
   UsersViewError,
@@ -8,10 +9,16 @@ import { getQueryClient, trpc } from "@/trpc/server";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { SearchParams } from "nuqs";
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-const Page = async () => {
+interface Props {
+  searchParams: Promise<SearchParams>
+}
+
+const Page = async ({ searchParams }: Props) => {
+  const filters = await loadSearchParams(searchParams);
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -21,7 +28,7 @@ const Page = async () => {
   }
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trpc.users.getMany.queryOptions());
+  void queryClient.prefetchQuery(trpc.users.getMany.queryOptions({...filters}));
 
   return (
     <>

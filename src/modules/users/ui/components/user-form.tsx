@@ -40,7 +40,7 @@ export const UserForm = ({
   const createUser = useMutation(
     trpc.users.create.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.users.getMany.queryOptions());
+        await queryClient.invalidateQueries(trpc.users.getMany.queryOptions({}));
         if (initialValues?.id) {
           await queryClient.invalidateQueries(
             trpc.users.getOne.queryOptions({ id: initialValues.id })
@@ -89,7 +89,7 @@ export const UserForm = ({
             onSuccess?.();
             setPending(false);
             await queryClient.invalidateQueries(
-              trpc.users.getMany.queryOptions()
+              trpc.users.getMany.queryOptions({})
             );
             if (initialValues?.id) {
               await queryClient.invalidateQueries(
