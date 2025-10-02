@@ -2,7 +2,6 @@ import React from 'react'
 import { SearchIcon } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { useUsersFilters } from '../../hooks/use-users-filters'
-import { fi } from 'date-fns/locale'
 
 export const UsersSearchFilter = () => {
   const [filters, setFilters] = useUsersFilters();
