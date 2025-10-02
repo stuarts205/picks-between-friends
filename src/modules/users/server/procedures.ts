@@ -14,6 +14,7 @@ import {
   MAX_PAGE_SIZE,
   MIN_PAGE_SIZE,
 } from "@/constants";
+import { TRPCError } from "@trpc/server";
 
 export const usersRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -25,6 +26,11 @@ export const usersRouter = createTRPCRouter({
         })
         .from(user)
         .where(eq(user.id, input.id));
+
+      if (!existingUser) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
       return existingUser;
     }),
   getMany: protectedProcedure
@@ -44,11 +50,7 @@ export const usersRouter = createTRPCRouter({
       const data = await db
         .select()
         .from(user)
-        .where(
-          and(
-            search ? ilike(user.name, `%${search}%`) : undefined
-          )
-        )
+        .where(and(search ? ilike(user.name, `%${search}%`) : undefined))
         .orderBy(user.name)
         .limit(pageSize)
         .offset((page - 1) * pageSize);
@@ -56,13 +58,9 @@ export const usersRouter = createTRPCRouter({
       const [total] = await db
         .select({ count: count() })
         .from(user)
-        .where(
-          and(
-            search ? ilike(user.name, `%${search}%`) : undefined
-          )
-        );
+        .where(and(search ? ilike(user.name, `%${search}%`) : undefined));
 
-        const totalPages = Math.ceil(total?.count / pageSize) || 1;
+      const totalPages = Math.ceil(total?.count / pageSize) || 1;
 
       return {
         items: data,
