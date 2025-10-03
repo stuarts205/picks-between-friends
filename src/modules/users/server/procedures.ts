@@ -5,7 +5,7 @@ import {
   baseProcedure,
   protectedProcedure,
 } from "@/trpc/init";
-import { usersInsertSchema } from "../schemas";
+import { usersInsertSchema, usersUpdateSchema } from "../schemas";
 import z from "zod";
 import { eq, getTableColumns, and, ilike, desc, count } from "drizzle-orm";
 import {
@@ -17,6 +17,35 @@ import {
 import { TRPCError } from "@trpc/server";
 
 export const usersRouter = createTRPCRouter({
+  update: protectedProcedure
+  .input(usersUpdateSchema)
+  .mutation(async ({ input }) => {
+    const [updatedUser] = await db
+      .update(user)
+      .set(input)
+      .where(eq(user.id, input.id))
+      .returning();
+
+      if (!updatedUser) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      return updatedUser;
+  }),
+  remove: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      const [removedUser] = await db
+        .delete(user)
+        .where(eq(user.id, input.id))
+        .returning();
+
+      if (!removedUser) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      return removedUser;
+    }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {

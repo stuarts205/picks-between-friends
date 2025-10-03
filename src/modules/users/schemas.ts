@@ -7,3 +7,7 @@ export const usersInsertSchema = z.object({
     confirmPassword: z.string().min(8, {message: "Confirm Password must be at least 8 characters"}),
     emailVerified: z.boolean().optional(),
 })
+
+export const usersUpdateSchema = usersInsertSchema.extend({
+    id: z.string().min(1, {message: "ID is required"}),
+})

@@ -37,8 +37,8 @@ export const UserForm = ({
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  const createUser = useMutation(
-    trpc.users.create.mutationOptions({
+  const updateUser = useMutation(
+    trpc.users.update.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(trpc.users.getMany.queryOptions({}));
         if (initialValues?.id) {
@@ -46,6 +46,19 @@ export const UserForm = ({
             trpc.users.getOne.queryOptions({ id: initialValues.id })
           );
         }
+        toast.success("User updated successfully");
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(`Error updating user: ${error.message}`);
+      },
+    })
+  );
+
+  const createUser = useMutation(
+    trpc.users.create.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.users.getMany.queryOptions({}));
         toast.success("User created successfully");
         onSuccess?.();
       },
@@ -67,11 +80,14 @@ export const UserForm = ({
   });
 
   const isEdit = !!initialValues?.id;
-  const isPending = createUser.isPending;
+  const isPending = createUser.isPending || updateUser.isPending;
 
   const onSubmit = (values: z.infer<typeof usersInsertSchema>) => {
     if (isEdit) {
-      console.log("edit user - not implemented yet");
+      updateUser.mutate({
+        ...values,
+        id: initialValues!.id,
+      })
     } else {
       setError(null);
       setPending(true);
