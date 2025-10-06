@@ -40,17 +40,34 @@ export const UserForm = ({
   const createUser = useMutation(
     trpc.users.create.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.users.getMany.queryOptions({}));
-        if (initialValues?.id) {
-          await queryClient.invalidateQueries(
-            trpc.users.getOne.queryOptions({ id: initialValues.id })
-          );
-        }
+        await queryClient.invalidateQueries(
+          trpc.users.getMany.queryOptions({})
+        );
         toast.success("User created successfully");
         onSuccess?.();
       },
       onError: (error) => {
         toast.error(`Error creating user: ${error.message}`);
+      },
+    })
+  );
+
+  const updateUser = useMutation(
+    trpc.users.update.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          trpc.users.getMany.queryOptions({})
+        );
+        if (initialValues?.id) {
+          await queryClient.invalidateQueries(
+            trpc.users.getOne.queryOptions({ id: initialValues.id })
+          );
+        }
+        toast.success("User updated successfully");
+        onSuccess?.();
+      },
+      onError: (error) => {
+        toast.error(`Error updating user: ${error.message}`);
       },
     })
   );
@@ -67,11 +84,21 @@ export const UserForm = ({
   });
 
   const isEdit = !!initialValues?.id;
-  const isPending = createUser.isPending;
+  const isPending = createUser.isPending || updateUser.isPending;
 
   const onSubmit = (values: z.infer<typeof usersInsertSchema>) => {
     if (isEdit) {
-      console.log("edit user - not implemented yet");
+      // Make password and confirmPassword optional before deletion
+      const payload: Omit<
+        z.infer<typeof usersInsertSchema>,
+        "password" | "confirmPassword"
+      > & {
+        password?: string;
+        confirmPassword?: string;
+      } = { ...values };
+      if (!payload.password) delete payload.password;
+      if (!payload.confirmPassword) delete payload.confirmPassword;
+      updateUser.mutate({ id: initialValues.id, ...payload });
     } else {
       setError(null);
       setPending(true);

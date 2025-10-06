@@ -5,7 +5,7 @@ import {
   baseProcedure,
   protectedProcedure,
 } from "@/trpc/init";
-import { usersInsertSchema } from "../schemas";
+import { usersInsertSchema, usersUpdateSchema } from "../schemas";
 import z from "zod";
 import { eq, getTableColumns, and, ilike, desc, count } from "drizzle-orm";
 import {
@@ -17,6 +17,90 @@ import {
 import { TRPCError } from "@trpc/server";
 
 export const usersRouter = createTRPCRouter({
+  update: protectedProcedure
+  .input(usersUpdateSchema)
+  .mutation(async ({ input, ctx }) => {
+    const ctxUser = ctx.auth.user;
+    const [currentUser] = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, ctxUser.id))
+        .limit(1);
+
+      if (!currentUser) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User not found in database",
+        });
+      }
+
+      if (currentUser.role !== 1) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Not authorized to remove user",
+        });
+      }
+
+      if (currentUser.id === input.id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Admins cannot delete their own account",
+        });
+      }
+    const [updatedUser] = await db
+    .update(user)
+    .set(input)
+    .where(eq(user.id, input.id))
+    .returning();
+
+    return updatedUser;
+    
+  }),
+  remove: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const ctxUser = ctx.auth.user;
+      const [currentUser] = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, ctxUser.id))
+        .limit(1);
+
+      if (!currentUser) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User not found in database",
+        });
+      }
+
+      if (currentUser.role !== 1) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Not authorized to remove user",
+        });
+      }
+
+      if (currentUser.id === input.id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Admins cannot delete their own account",
+        });
+      }
+
+      const [removedUser] = await db
+        .delete(user)
+        .where(eq(user.id, input.id))
+        .returning();
+
+      if (!removedUser) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+
+      return removedUser;
+    }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
