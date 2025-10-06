@@ -15,7 +15,7 @@ const UpdateUserDialog = ({ open, onOpenChange, initialValues }: NewUserDialogPr
     <ResponsiveDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Edit New User"
+      title="Edit User"
       description="Edit an existing user."
     >
       <UserForm

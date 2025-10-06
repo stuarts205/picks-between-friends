@@ -37,7 +37,7 @@ export const usersRouter = createTRPCRouter({
       if (currentUser.role !== 1) {
         throw new TRPCError({
           code: "FORBIDDEN",
-          message: "Not authorized to remove user",
+          message: "Not authorized to update user",
         });
       }
 
