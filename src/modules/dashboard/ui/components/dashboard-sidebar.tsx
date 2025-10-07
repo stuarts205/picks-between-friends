@@ -41,8 +41,8 @@ const firstSection = [
 const adminSection = [
   {
     icon: CheckCircleIcon,
-    label: "Select Games",
-    href: "/select-games",
+    label: "Games",
+    href: "/games",
   },
   {
     icon: SquareCheckIcon,
