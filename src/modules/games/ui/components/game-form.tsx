@@ -3,13 +3,10 @@ import React, { useEffect, useState } from "react";
 import { GameGetOne } from "../../types";
 import { useTRPC } from "@/trpc/client";
 import {
-  queryOptions,
   useMutation,
   useQuery,
   useQueryClient,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { gamesInsertSchema } from "../../schemas";
 import z from "zod";
@@ -25,9 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Command } from "lucide-react";
 import { CommandSelect } from "@/components/command-select";
-import { set } from "date-fns";
 
 interface GameFormProps {
   onSuccess?: (id?: string) => void;
@@ -41,7 +36,6 @@ export const GameForm = ({
   initialValues,
 }: GameFormProps) => {
   const trpc = useTRPC();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const leagues = ["NFL", "College"];

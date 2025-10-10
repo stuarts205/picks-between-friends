@@ -20,23 +20,10 @@ export const gamesRouter = createTRPCRouter({
       if (!currentGame) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
-          message: "User not found in database",
+          message: "Game not found in database",
         });
       }
-
-      // if (ctxUser.role !== 1) {
-      //   throw new TRPCError({
-      //     code: "FORBIDDEN",
-      //     message: "Not authorized to update game",
-      //   });
-      // }
-
-      if (currentGame.id === input.id) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "Admins cannot delete their own account",
-        });
-      }
+      
       const [updatedGame] = await db
         .update(game)
         .set(input)

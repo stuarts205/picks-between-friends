@@ -4,12 +4,12 @@ import React from "react";
 import { GameForm } from "./game-form";
 import { useRouter } from "next/navigation";
 
-interface NewMetingDialogProps {
+interface NewMeetingDialogProps  {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export const NewMeetingDialog = ({ open, onOpenChange }: NewMetingDialogProps) => {
+export const NewMeetingDialog = ({ open, onOpenChange }: NewMeetingDialogProps ) => {
   const router = useRouter();
   return (
     <ResponsiveDialog
