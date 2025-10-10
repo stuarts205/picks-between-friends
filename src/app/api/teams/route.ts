@@ -16,16 +16,15 @@ export async function POST(req: NextRequest) {
       }
 
       return {
-        name: t.team.shortDisplayName ?? null,
+        name: t.team.location ?? null,
         nickname: t.team.name ?? null,
         abbreviation: t.team.abbreviation ?? null,
-        conference: null, // or "" if you want empty string
+        conference: null, 
         logo: newLogo ?? null,
         league: "College",
       };
     });
 
-    // Bulk insert into teams table
     await db.insert(team).values(insertData);
 
     const nflTeams = await getNflTeams();
@@ -37,7 +36,7 @@ export async function POST(req: NextRequest) {
         }
 
         return {
-            name: t.team.displayName ?? null,
+            name: t.team.location ?? null,
             nickname: t.team.name ?? null,
             abbreviation: t.team.abbreviation ?? null,
             conference: t.team.conference ?? null,

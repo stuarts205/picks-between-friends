@@ -18,10 +18,10 @@ import { TRPCError } from "@trpc/server";
 
 export const usersRouter = createTRPCRouter({
   update: protectedProcedure
-  .input(usersUpdateSchema)
-  .mutation(async ({ input, ctx }) => {
-    const ctxUser = ctx.auth.user;
-    const [currentUser] = await db
+    .input(usersUpdateSchema)
+    .mutation(async ({ input, ctx }) => {
+      const ctxUser = ctx.auth.user;
+      const [currentUser] = await db
         .select()
         .from(user)
         .where(eq(user.id, ctxUser.id))
@@ -47,15 +47,14 @@ export const usersRouter = createTRPCRouter({
           message: "Admins cannot delete their own account",
         });
       }
-    const [updatedUser] = await db
-    .update(user)
-    .set(input)
-    .where(eq(user.id, input.id))
-    .returning();
+      const [updatedUser] = await db
+        .update(user)
+        .set(input)
+        .where(eq(user.id, input.id))
+        .returning();
 
-    return updatedUser;
-    
-  }),
+      return updatedUser;
+    }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
