@@ -1,9 +1,9 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-import { UserGetOne } from "../../types";
+import { UserGetMany } from "../../types";
 import { GeneratedAvatar } from "@/components/genterated-avatar";
 
-export const columns: ColumnDef<UserGetOne>[] = [
+export const columns: ColumnDef<UserGetMany[number]>[] = [
   {
     accessorKey: "name",
     header: "Name",
