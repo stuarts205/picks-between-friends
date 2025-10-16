@@ -12,7 +12,9 @@ export const gamesInsertSchema = z.object({
     league: z.string().min(1, {message: "League is required"}),
 })
 
+export const gamesInsertManySchema = z.array(gamesInsertSchema);
+
 export const gamesUpdateSchema = gamesInsertSchema
   .extend({
     id: z.string().min(1, { message: "ID is required" }),
-  })
+  });

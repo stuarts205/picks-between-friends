@@ -44,7 +44,7 @@ export const GameForm = ({
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const leagues = ["NFL", "College"];
+  const leagues = ["nfl", "college-football"];
 
   const [open, setOpen] = useState(false);
   const [leagueSearch, setLeagueSearch] = useState("");
@@ -56,8 +56,6 @@ export const GameForm = ({
   const { data: allTeams = [] } = useQuery(
     trpc.teams.getMany.queryOptions({ league: leagueSearch })
   );
-
-  console.log("All teams:", allTeams);
 
   const createGame = useMutation(
     trpc.games.create.mutationOptions({
@@ -124,12 +122,10 @@ export const GameForm = ({
   const isPending = createGame.isPending || updateGame.isPending;
 
   const onSubmit = (values: z.infer<typeof gamesInsertSchema>) => {
-    console.log("Submitting form with values:", values);
     if (isEdit) {
       updateGame.mutate({ id: initialValues.id, ...values });
     } else {
       createGame.mutate(values);
-      console.log("Game created with values:", values);
     }
   };
 
