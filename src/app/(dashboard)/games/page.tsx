@@ -1,3 +1,4 @@
+import { db } from "@/db";
 import { auth } from "@/lib/auth";
 import { GamesListHeader } from "@/modules/games/ui/components/games-list-header";
 import {
@@ -11,6 +12,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { season } from "@/db/schema"; 
 
 const Page = async () => {
   const session = await auth.api.getSession({
@@ -22,7 +24,9 @@ const Page = async () => {
   }
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({}));
+  const currentSeason =  (await db.select().from(season).limit(1))[0];
+  void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: 'college-football'}));
+  void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: 'nfl'}));
 
   return (
     <>
