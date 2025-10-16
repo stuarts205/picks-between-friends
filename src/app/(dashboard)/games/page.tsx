@@ -25,8 +25,8 @@ const Page = async () => {
 
   const queryClient = getQueryClient();
   const currentSeason =  (await db.select().from(season).limit(1))[0];
-  void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: 'college-football'}));
-  void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: 'nfl'}));
+  void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: "college-football"}));
+  void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: "nfl"}));
 
   return (
     <>
@@ -34,7 +34,7 @@ const Page = async () => {
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<GamesViewLoading />}>
           <ErrorBoundary fallback={<GamesViewError />}>
-            <GamesView />
+            <GamesView currentSeason={currentSeason} />
           </ErrorBoundary>
         </Suspense>
       </HydrationBoundary>

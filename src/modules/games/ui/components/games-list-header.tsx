@@ -25,21 +25,13 @@ export const GamesListHeader = () => {
   const { data: games } = useSuspenseQuery(
     trpc.games.getMany.queryOptions({ week: season?.week })
   );
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isLoading) return;
-    if (games && games.items.length > 0) {
-      setIsLoading(false);
-      toast.error("Games already loaded for this week");
-    }
-  }, [games]);
+  const [isLoading, setIsLoading] = useState(false);  
 
   const createGames = useMutation(
     trpc.games.createMany.mutationOptions({
       onSuccess: async (data) => {
         await queryClient.invalidateQueries(
-          trpc.games.getMany.queryOptions({})
+          trpc.games.getMany.queryOptions({week: season?.week})
         );
         toast.success("Games loaded successfully");
         setIsLoading(false);
