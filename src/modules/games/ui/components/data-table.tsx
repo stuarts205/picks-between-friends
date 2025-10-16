@@ -6,8 +6,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { useIsMobile } from '@/hooks/use-mobile'
-import { is } from "drizzle-orm";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Separator } from "@/components/ui/separator";
 
 interface DataTableProps<TData, TValue> {
@@ -24,8 +23,9 @@ export function DataTable<TData, TValue>({
   nflData,
   onRowClick,
   noResultsMessage,
-}: DataTableProps<TData, TValue>) {  
+}: DataTableProps<TData, TValue>) {
   const isMobile = useIsMobile();
+
   const collegeTable = useReactTable({
     data: collegeData,
     columns,
@@ -37,11 +37,19 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+  const selectedCollegeGamesCount = collegeData.filter((game: any) => game.selected).length;
+  const selectedNflGamesCount = nflData.filter((game: any) => game.selected).length;
 
   return (
     <div className="flex-row md:flex items-center md:items-start justify-between gap-6 md:gap-4">
       <div className="w-full">
-        <h3 className="p-4 font-medium">College Games</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="p-4 font-medium">College Games</h3>
+          <div className="text-sm text-muted-foreground px-6">
+            {selectedCollegeGamesCount} selected
+          </div>
+        </div>
+
         <Table className="rounded-lg border">
           <TableBody>
             {collegeTable.getRowModel().rows?.length ? (
@@ -75,9 +83,16 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {isMobile && <Separator orientation="horizontal" className="my-4 w-full" />}
+      {isMobile && (
+        <Separator orientation="horizontal" className="my-4 w-full" />
+      )}
       <div className="w-full">
-        <h3 className="p-4 font-medium">NFL Games</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="p-4 font-medium">NFL Games</h3>
+          <div className="text-sm text-muted-foreground px-6">
+            {selectedNflGamesCount} selected
+          </div>
+        </div>
         <Table className="rounded-lg border">
           <TableBody>
             {nflTable.getRowModel().rows?.length ? (

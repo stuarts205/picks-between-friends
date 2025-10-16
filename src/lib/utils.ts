@@ -27,7 +27,6 @@ export const getGames = async (season: any) => {
 
   const dateList = generateDateSeries(season?.startDate, 7);
 
-  // --- Fetch College Games ---
   for (const date of dateList) {
     const collegeResponse = await fetch(
       `http://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=${date}`
@@ -38,13 +37,11 @@ export const getGames = async (season: any) => {
 
       const leagueName = collegeData.leagues[0]?.slug ?? "college-football";
 
-      // Tag each event with the league
       const gamesWithLeague = collegeData.events.map((game: any) => ({
         ...game,
         league: leagueName,
       }));
 
-      // Merge and filter for Power Five
       const filteredGames = [...collegeGames, ...gamesWithLeague].filter((game) =>
         powerFiveId.includes(
           game.competitions[0].competitors[0].team.conferenceId ||
@@ -56,7 +53,6 @@ export const getGames = async (season: any) => {
     }
   }
 
-  // --- Fetch NFL Games ---
   for (const date of dateList) {
     const nflResponse = await fetch(
       `http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${date}`
@@ -67,7 +63,6 @@ export const getGames = async (season: any) => {
 
       const leagueName = nflData.leagues[0]?.slug ?? "nfl";
 
-      // Tag each event with the league
       const gamesWithLeague = nflData.events.map((game: any) => ({
         ...game,
         league: leagueName,
@@ -77,7 +72,6 @@ export const getGames = async (season: any) => {
     }
   }
 
-  // --- Combine both ---
   const allGames = [...collegeGames, ...nflGames];
 
   console.log("allGames", allGames);

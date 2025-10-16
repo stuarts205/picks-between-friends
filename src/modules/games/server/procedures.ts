@@ -1,8 +1,8 @@
 import { db } from "@/db";
-import { game, team } from "@/db/schema";
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { game, team, user } from "@/db/schema";
+import { baseProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import z from "zod";
-import { eq, getTableColumns, and } from "drizzle-orm";
+import { eq, getTableColumns, and, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import {
   gamesInsertManySchema,
@@ -11,6 +11,54 @@ import {
 } from "../schemas";
 
 export const gamesRouter = createTRPCRouter({
+  selectGame: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const [currentGame] = await db
+        .select()
+        .from(game)
+        .where(eq(game.id, input.id))
+        .limit(1);
+
+      if (!currentGame) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Game not found in database",
+        });
+      }
+
+      const [updatedGame] = await db
+        .update(game)
+        .set({ selected: true })
+        .where(eq(game.id, input.id))
+        .returning();
+
+      return updatedGame;
+    }),
+  removeGame: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const [currentGame] = await db
+        .select()
+        .from(game)
+        .where(eq(game.id, input.id))
+        .limit(1);
+
+      if (!currentGame) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Game not found in database",
+        });
+      }
+
+      const [updatedGame] = await db
+        .update(game)
+        .set({ selected: null })
+        .where(eq(game.id, input.id))
+        .returning();
+
+      return updatedGame;
+    }),
   updateSpread: protectedProcedure
     .input(
       z.object({
@@ -45,7 +93,7 @@ export const gamesRouter = createTRPCRouter({
         .set({ spread: input.spread })
         .where(eq(game.id, input.id))
         .returning();
-        
+
       return updatedGame;
     }),
   createMany: protectedProcedure
@@ -187,14 +235,14 @@ export const gamesRouter = createTRPCRouter({
 
       return existingGame;
     }),
-  getMany: protectedProcedure
+  getMany: baseProcedure
     .input(
       z.object({
         week: z.number().nullish(),
         league: z.string().nullish(),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       const { week, league } = input;
       const data = await db
         .select()
@@ -204,7 +252,8 @@ export const gamesRouter = createTRPCRouter({
             week ? eq(game.week, week) : undefined,
             league ? eq(game.league, league) : undefined
           )
-        );
+        )
+        .orderBy(game.gameid);
 
       return {
         items: data,

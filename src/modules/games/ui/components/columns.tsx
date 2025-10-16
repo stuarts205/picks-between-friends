@@ -1,9 +1,13 @@
 "use client";
-
 import { ColumnDef } from "@tanstack/react-table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVerticalIcon } from "lucide-react";
+import { CheckIcon, MoreVerticalIcon } from "lucide-react";
 import type { GameGetMany } from "../../types";
 
 interface GameColumnsOptions {
@@ -12,7 +16,11 @@ interface GameColumnsOptions {
   onRemove: (game: GameGetMany[number]) => void;
 }
 
-export const createColumns = ({ onEdit, onSelect, onRemove }: GameColumnsOptions): ColumnDef<GameGetMany[number]>[] => [
+export const createColumns = ({
+  onEdit,
+  onSelect,
+  onRemove,
+}: GameColumnsOptions): ColumnDef<GameGetMany[number]>[] => [
   {
     id: "actions",
     header: "Actions",
@@ -26,13 +34,26 @@ export const createColumns = ({ onEdit, onSelect, onRemove }: GameColumnsOptions
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start">
-            <DropdownMenuItem onClick={() => onSelect(game)}>Select Game</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onRemove(game)}>Remove Game</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(game)}>Change Spread</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSelect(game)}>
+              Select Game
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onRemove(game)}>
+              Remove Game
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit(game)}>
+              Change Spread
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
     },
+  },
+  {
+    accessorKey: "selected",
+    header: "Selected",
+    cell: ({ row }) => (
+      <span>{row.original.selected && <CheckIcon className="size-4" />}</span>
+    ),
   },
   {
     accessorKey: "game",
