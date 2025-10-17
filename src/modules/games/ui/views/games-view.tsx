@@ -15,12 +15,14 @@ import EditGameDialog from "../components/edit-game-dialog";
 import type { GameGetMany } from "../../types";
 import { SeasonGetOne } from "@/modules/season/type";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface GamesViewProps {
   currentSeason: SeasonGetOne;
 }
 
 export const GamesView = ({ currentSeason }: GamesViewProps) => {
+  const isMobile = useIsMobile();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data: college } = useSuspenseQuery(

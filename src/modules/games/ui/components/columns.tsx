@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CheckIcon, MoreVerticalIcon } from "lucide-react";
 import type { GameGetMany } from "../../types";
+import { cn } from "@/lib/utils";
 
 interface GameColumnsOptions {
   onEdit: (game: GameGetMany[number]) => void;
@@ -30,7 +31,9 @@ export const createColumns = ({
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreVerticalIcon className="h-4 w-4" />
+              <MoreVerticalIcon 
+                className={cn(
+                  "h-4 w-4",)} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start">
@@ -66,14 +69,16 @@ export const createColumns = ({
       </div>
     ),
   },
-  {
-    accessorKey: "favorite",
-    header: "Favorite",
-    cell: ({ row }) => <span>{row.original.favorite}</span>,
-  },
+  // {
+  //   accessorKey: "favorite",
+  //   header: "Favorite",
+  //   cell: ({ row }) => <span>{row.original.favorite}</span>,
+  // },
   {
     accessorKey: "spread",
     header: "Spread",
-    cell: ({ row }) => <span>{row.original.spread}</span>,
+    cell: ({ row }) => (
+    <div className="text-right px-2">{row.original.spread}</div>
+  ),
   },
 ];
