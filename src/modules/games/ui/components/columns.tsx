@@ -31,9 +31,7 @@ export const createColumns = ({
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreVerticalIcon 
-                className={cn(
-                  "h-4 w-4",)} />
+              <MoreVerticalIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start">

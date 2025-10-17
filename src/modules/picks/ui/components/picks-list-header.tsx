@@ -1,8 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-export const PicksListHeader = () => {
-  
+export const PicksListHeader = () => {  
 
   return (
     <>
