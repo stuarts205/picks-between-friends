@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { game, team, user } from "@/db/schema";
+import { game, pick, session, team, user } from "@/db/schema";
 import {
   baseProcedure,
   createTRPCRouter,
@@ -10,6 +10,37 @@ import { eq, getTableColumns, and } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 export const picksRouter = createTRPCRouter({
+  createPick: protectedProcedure
+    .input(
+      z.object({
+        gameId: z.string(),
+        teamId: z.string(),
+        week: z.number(),
+        session: z.any(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { gameId, teamId, week, session } = input;
+
+      if (!gameId || !teamId) {
+        throw new Error("Invalid input");
+      }
+
+      const [newPick] = await db
+      .insert(pick)
+      .values({
+        id: crypto.randomUUID(), 
+        gameId: gameId,
+        teamId: teamId,
+        userId: session.user.id,
+        userName: session.user.name,
+        week: week,
+      })
+      .returning();
+
+      return newPick;
+
+    }),
   getManySelected: protectedProcedure
   .input(
     z.object({

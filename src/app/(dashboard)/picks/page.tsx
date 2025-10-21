@@ -46,7 +46,7 @@ const Page = async () => {
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Suspense fallback={<PicksViewLoading />}>
           <ErrorBoundary fallback={<PicksViewError />}>
-            <PicksView currentSeason={currentSeason} />
+            <PicksView session={session} currentSeason={currentSeason} />
           </ErrorBoundary>
         </Suspense>
       </HydrationBoundary>
