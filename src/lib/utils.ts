@@ -74,8 +74,6 @@ export const getGames = async (season: any) => {
 
   const allGames = [...collegeGames, ...nflGames];
 
-  console.log("allGames", allGames);
-
   return allGames;
 };
 

@@ -16,8 +16,6 @@ export const homeRouter = createTRPCRouter({
   )
   .query(async ({ input }) => {
     const { week, league, session } = input;
-
-    // Aliases for team table (so we can join twice)
     const homeTeam = alias(team, "homeTeam");
     const awayTeam = alias(team, "awayTeam");
 
@@ -33,10 +31,11 @@ export const homeRouter = createTRPCRouter({
         homeTeamLogo: homeTeam.logo,
         awayTeamName: awayTeam.name,
         awayTeamLogo: awayTeam.logo,
+        spread: game.spread,
       })
       .from(pick)
       .innerJoin(game, eq(pick.gameId, game.id))
-      .innerJoin(team, eq(pick.teamId, team.id)) // user's pick
+      .innerJoin(team, eq(pick.teamId, team.id))
       .innerJoin(homeTeam, eq(game.homeId, homeTeam.id))
       .innerJoin(awayTeam, eq(game.awayId, awayTeam.id))
       .where(
