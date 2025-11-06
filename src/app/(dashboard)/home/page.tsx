@@ -39,7 +39,7 @@ const Page = async () => {
     })
   );
   void queryClient.prefetchQuery(trpc.users.getOverallStandings.queryOptions());
-  void queryClient.prefetchQuery(trpc.users.getWeeklyStandings.queryOptions({ week: currentSeason?.week - 1 }));
+  void queryClient.prefetchQuery(trpc.users.getWeeklyStandings.queryOptions({ week: currentSeason.week }));
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

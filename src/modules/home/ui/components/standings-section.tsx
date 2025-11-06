@@ -2,7 +2,6 @@
 import { UserGetOne } from "@/modules/users/types";
 import { useTRPC } from "@/trpc/client";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { int } from "drizzle-orm/mysql-core";
 import React from "react";
 
 interface StandingsSectionProps {
@@ -13,7 +12,7 @@ export const StandingsSection = ({ currentSeason }: StandingsSectionProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const { data: oveallStandings } = useSuspenseQuery(
+  const { data: overallStandings } = useSuspenseQuery(
     trpc.users.getOverallStandings.queryOptions()
   );
 
@@ -25,13 +24,13 @@ export const StandingsSection = ({ currentSeason }: StandingsSectionProps) => {
     <div className="flex flex-col items-start p-4 rounded-lg border gap-3">
       <h2 className="text-md text-muted-foreground">Standings</h2>
       <div className="flex flex-col md:flex-row items-start justify-between gap-3 w-full">
-        <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border gap-3md:w-1/2 w-full">
+        <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border gap-3 md:w-1/2 w-full">
           <h2 className="text-md text-muted-foreground">Overall Standings</h2>
           <div className="w-full p-3 space-y-4">
-            {oveallStandings.items.length === 0 ? (
+            {overallStandings.items.length === 0 ? (
               <p className="text-muted-foreground">No standings available</p>
             ) : (
-              oveallStandings.items.map((user: UserGetOne, index: number) => (
+              overallStandings.items.map((user: UserGetOne) => (
                 <div
                   key={user.id}
                   className="flex items-center justify-between"
@@ -45,15 +44,15 @@ export const StandingsSection = ({ currentSeason }: StandingsSectionProps) => {
             )}
           </div>
         </div>
-        <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border gap-3md:w-1/2 w-full">
+        <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border gap-3 md:w-1/2 w-full">
           <h2 className="text-md text-muted-foreground">
             Week {currentSeason.week - 1} results
           </h2>
           <div className="w-full p-3 space-y-4">
-            {oveallStandings.items.length === 0 ? (
+            {weeklyStandings.items.length === 0 ? (
               <p className="text-muted-foreground">No standings available</p>
             ) : (
-              weeklyStandings.items.map((user: UserGetOne, index: number) => (
+              weeklyStandings.items.map((user: UserGetOne) => (
                 <div
                   key={user.id}
                   className="flex items-center justify-between"
