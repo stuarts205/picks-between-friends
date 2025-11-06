@@ -112,10 +112,6 @@ export const GameForm = ({
     },
   });
 
-  useEffect(() => {
-    console.log("Form errors:", form.formState.errors);
-  }, [form.formState.errors]);
-
   const isEdit = !!initialValues?.id;
   const isPending = createGame.isPending || updateGame.isPending;
 

@@ -7,7 +7,7 @@ import {
 } from "@/trpc/init";
 import { usersInsertSchema, usersUpdateSchema } from "../schemas";
 import z from "zod";
-import { eq, getTableColumns, and, ilike, desc, count } from "drizzle-orm";
+import { eq, getTableColumns, and, ilike, desc, count, or } from "drizzle-orm";
 import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
@@ -17,6 +17,25 @@ import {
 import { TRPCError } from "@trpc/server";
 
 export const usersRouter = createTRPCRouter({
+  getWeeklyStandings: baseProcedure
+    .input(z.object({ week: z.number() }))
+    .query(async ({ input }) => {
+      const data = await db
+        .select()
+        .from(user)
+        .where(or(eq(user.week, input.week), eq(user.week, input.week - 1)))
+        .orderBy(desc(user.weeklyPoints));
+
+      return {
+        items: data,
+      };
+    }),
+  getOverallStandings: baseProcedure.query(async () => {
+    const data = await db.select().from(user).orderBy(desc(user.overAllPoints));
+    return {
+      items: data,
+    };
+  }),
   update: protectedProcedure
     .input(usersUpdateSchema)
     .mutation(async ({ input, ctx }) => {

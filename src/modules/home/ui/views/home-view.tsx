@@ -6,6 +6,7 @@ import { LoadingState } from "@/components/loading-state";
 import { ErrorState } from "@/components/error-state";
 import { WeeklyPicksSection } from "../components/weekly-picks-section";
 import { UserGetOne } from "@/modules/users/types";
+import { StandingsSection } from "../components/standings-section";
 
 interface HomeViewProps {
   session: any;
@@ -15,23 +16,24 @@ interface HomeViewProps {
 
 export const HomeView = ({ session, currentSeason, user }: HomeViewProps) => {
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col p-3 md:p-6 gap-3">
       <HomeViewHeader session={session} currentSeason={currentSeason} user={user} />
-      <WeeklyPicksSection session={session} currentSeason={currentSeason} />      
+      <WeeklyPicksSection session={session} currentSeason={currentSeason} /> 
+      <StandingsSection currentSeason={currentSeason} />     
     </div>
   );
 };
 
-export const HomePicksViewLoading = () => (
+export const HomeViewLoading = () => (
   <LoadingState
-    title="Loading picks"
-    description="Please wait while we fetch the picks."
+    title="Loading"
+    description="Please wait while we load your dashboard."
   />
 );
 
-export const HomePicksViewError = () => (
+export const HomeViewError = () => (
   <ErrorState
-    title="Error loading picks"
-    description="There was an error fetching the picks. Please try again."
+    title="Error loading dashboard"
+    description="There was an error fetching the dashboard. Please try again."
   />
 );
