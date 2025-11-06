@@ -44,7 +44,6 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
           ...prev,
           [variables.gameId]: variables.teamId,
         }));
-        console.log("College pick created:", variables);
       },
     })
   );

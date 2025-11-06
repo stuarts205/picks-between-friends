@@ -26,69 +26,82 @@ export const picksRouter = createTRPCRouter({
         throw new Error("Invalid input");
       }
 
+      const [existingPick] = await db
+        .select()
+        .from(pick)
+        .where(and(eq(pick.gameId, gameId), eq(pick.userId, session.user.id), eq(pick.week, week)));
+
+      if (existingPick) {
+        const updatedPick = await db
+          .update(pick)
+          .set({ teamId: teamId })
+          .where(eq(pick.id, existingPick.id))
+          .returning();
+        return updatedPick;
+      }
+
       const [newPick] = await db
-      .insert(pick)
-      .values({
-        id: crypto.randomUUID(), 
-        gameId: gameId,
-        teamId: teamId,
-        userId: session.user.id,
-        userName: session.user.name,
-        week: week,
-      })
-      .returning();
+        .insert(pick)
+        .values({
+          id: crypto.randomUUID(),
+          gameId: gameId,
+          teamId: teamId,
+          userId: session.user.id,
+          userName: session.user.name,
+          week: week,
+        })
+        .returning();
 
       return newPick;
-
     }),
   getManySelected: protectedProcedure
-  .input(
-    z.object({
-      week: z.number().nullish(),
-      league: z.string().nullish(),
-      selected: z.boolean().optional(),
-    })
-  )
-  .query(async ({ input }) => {
-    const { week, league, selected } = input;
-
-    const homeTeam = alias(team, "homeTeam");
-    const awayTeam = alias(team, "awayTeam");
-
-    const data = await db
-      .select({
-        ...getTableColumns(game),
-        homeTeam: {
-          id: homeTeam.id,
-          name: homeTeam.name,
-          nickname: homeTeam.nickname,
-          abbreviation: homeTeam.abbreviation,
-          logo: homeTeam.logo,
-          conference: homeTeam.conference,
-          league: homeTeam.league,
-        },
-        awayTeam: {
-          id: awayTeam.id,
-          name: awayTeam.name,
-          nickname: awayTeam.nickname,
-          abbreviation: awayTeam.abbreviation,
-          logo: awayTeam.logo,
-          conference: awayTeam.conference,
-          league: awayTeam.league,
-        },
+    .input(
+      z.object({
+        week: z.number().nullish(),
+        league: z.string().nullish(),
+        selected: z.boolean().optional(),
       })
-      .from(game)
-      .leftJoin(homeTeam, eq(game.homeId, homeTeam.id))
-      .leftJoin(awayTeam, eq(game.awayId, awayTeam.id))
-      .where(
-        and(
-          week ? eq(game.week, week) : undefined,
-          league ? eq(game.league, league) : undefined,
-          selected === true ? eq(game.selected, true) : undefined
-        )
-      )
-      .orderBy(game.gameid);
+    )
+    .query(async ({ input }) => {
+      const { week, league, selected } = input;
 
-    return { items: data };
-  }),
+      const homeTeam = alias(team, "homeTeam");
+      const awayTeam = alias(team, "awayTeam");
+
+      const data = await db
+        .select({
+          ...getTableColumns(game),
+          homeTeam: {
+            id: homeTeam.id,
+            name: homeTeam.name,
+            nickname: homeTeam.nickname,
+            abbreviation: homeTeam.abbreviation,
+            logo: homeTeam.logo,
+            conference: homeTeam.conference,
+            league: homeTeam.league,
+          },
+          awayTeam: {
+            id: awayTeam.id,
+            name: awayTeam.name,
+            nickname: awayTeam.nickname,
+            abbreviation: awayTeam.abbreviation,
+            logo: awayTeam.logo,
+            conference: awayTeam.conference,
+            league: awayTeam.league,
+          },
+        })
+        .from(game)
+        .leftJoin(homeTeam, eq(game.homeId, homeTeam.id))
+        .leftJoin(awayTeam, eq(game.awayId, awayTeam.id))
+        .where(
+          and(
+            week ? eq(game.week, week) : undefined,
+            league ? eq(game.league, league) : undefined,
+            selected === true ? eq(game.selected, true) : undefined
+          )
+        )
+        .orderBy(game.gameid);
+
+      return { items: data };
+    }),
 });
