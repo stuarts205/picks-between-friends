@@ -37,7 +37,7 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
     })
   );
 
-  const collegePickMutation = useMutation(
+  const pickMutation = useMutation(
     trpc.picks.createPick.mutationOptions({
       onSuccess: async (_, variables) => {
         setSelectedPicks((prev) => ({
@@ -80,7 +80,7 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
           <div
             className="flex flex-col items-center cursor-pointer"
             onClick={() =>
-              collegePickMutation.mutate({
+              pickMutation.mutate({
                 gameId: g.id,
                 teamId: g.awayTeam?.id || "",
                 week: currentSeason?.week || 0,
@@ -105,7 +105,7 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
           <div
             className="flex flex-col items-center cursor-pointer"
             onClick={() =>
-              collegePickMutation.mutate({
+              pickMutation.mutate({
                 gameId: g.id,
                 teamId: g.homeTeam?.id || "",
                 week: currentSeason?.week || 0,

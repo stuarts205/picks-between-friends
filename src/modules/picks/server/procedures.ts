@@ -68,7 +68,7 @@ export const picksRouter = createTRPCRouter({
         selected: z.boolean().optional(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { week, league, selected } = input;
 
       const homeTeam = alias(team, "homeTeam");
@@ -76,6 +76,8 @@ export const picksRouter = createTRPCRouter({
       const userPick = alias(pick, "userPick");
       const pickedTeam = alias(team, "pickedTeam");
 
+      const ctxUser = ctx.auth.user;
+      console.log("ctxUser:", ctxUser);
       const data = await db
         .select({
           ...getTableColumns(game),
@@ -114,6 +116,7 @@ export const picksRouter = createTRPCRouter({
         .leftJoin(pickedTeam, eq(userPick.teamId, pickedTeam.id))
         .where(
           and(
+            eq(userPick.userId, ctxUser.id),
             week ? eq(game.week, week) : undefined,
             league ? eq(game.league, league) : undefined,
             selected === true ? eq(game.selected, true) : undefined
