@@ -29,7 +29,13 @@ export const picksRouter = createTRPCRouter({
       const [existingPick] = await db
         .select()
         .from(pick)
-        .where(and(eq(pick.gameId, gameId), eq(pick.userId, session.user.id), eq(pick.week, week)));
+        .where(
+          and(
+            eq(pick.gameId, gameId),
+            eq(pick.userId, session.user.id),
+            eq(pick.week, week)
+          )
+        );
 
       if (existingPick) {
         const updatedPick = await db
@@ -67,6 +73,8 @@ export const picksRouter = createTRPCRouter({
 
       const homeTeam = alias(team, "homeTeam");
       const awayTeam = alias(team, "awayTeam");
+      const userPick = alias(pick, "userPick");
+      const pickedTeam = alias(team, "pickedTeam");
 
       const data = await db
         .select({
@@ -89,10 +97,21 @@ export const picksRouter = createTRPCRouter({
             conference: awayTeam.conference,
             league: awayTeam.league,
           },
+          userPick: {
+            id: userPick.id,
+            teamId: userPick.teamId,
+          },
+          pickedTeam: {
+            id: pickedTeam.id,
+            name: pickedTeam.name,
+            logo: pickedTeam.logo,
+          },
         })
         .from(game)
         .leftJoin(homeTeam, eq(game.homeId, homeTeam.id))
         .leftJoin(awayTeam, eq(game.awayId, awayTeam.id))
+        .leftJoin(userPick, and(eq(userPick.gameId, game.id)))
+        .leftJoin(pickedTeam, eq(userPick.teamId, pickedTeam.id))
         .where(
           and(
             week ? eq(game.week, week) : undefined,
