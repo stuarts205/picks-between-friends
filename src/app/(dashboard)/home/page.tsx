@@ -25,22 +25,22 @@ const Page = async () => {
     await db.select().from(user).where(eq(user.id, session.user.id)).limit(1)
   )[0];
   void queryClient.prefetchQuery(
-    trpc.home.getManyPicks.queryOptions({
-      week: currentSeason?.week,
-      league: "college-football",
-      session,
-    })
-  );
-  void queryClient.prefetchQuery(
-    trpc.home.getManyPicks.queryOptions({
-      week: currentSeason?.week,
-      league: "nfl",
-      session,
-    })
-  );
+      trpc.picks.getManySelected.queryOptions({
+        week: currentSeason?.week,
+        league: "college-football",
+        selected: true,
+      })
+    );
+    void queryClient.prefetchQuery(
+      trpc.picks.getManySelected.queryOptions({
+        week: currentSeason?.week,
+        league: "nfl",
+        selected: true,
+      })
+    );
   void queryClient.prefetchQuery(trpc.users.getOverallStandings.queryOptions());
   void queryClient.prefetchQuery(trpc.users.getWeeklyStandings.queryOptions({ week: currentSeason.week }));
-
+  
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<HomeViewLoading />}>

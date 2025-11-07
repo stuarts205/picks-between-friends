@@ -1,7 +1,11 @@
 "use client";
 import { useTRPC } from "@/trpc/client";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import React from "react";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import React, { useState } from "react";
 import Image from "next/image";
 
 interface WeeklyPicksSectionProps {
@@ -13,22 +17,50 @@ export const WeeklyPicksSection = ({
   session,
   currentSeason,
 }: WeeklyPicksSectionProps) => {
+  const [selectedPicks, setSelectedPicks] = useState<Record<string, string>>(
+    {}
+  );
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
   const { data: college } = useSuspenseQuery(
-    trpc.home.getManyPicks.queryOptions({
+    trpc.picks.getManySelected.queryOptions({
       week: currentSeason?.week,
-      league: "College",
-      session,
+      league: "college-football",
+      selected: true,
     })
   );
 
   const { data: nfl } = useSuspenseQuery(
-    trpc.home.getManyPicks.queryOptions({
+    trpc.picks.getManySelected.queryOptions({
       week: currentSeason?.week,
-      league: "NFL",
-      session,
+      league: "nfl",
+      selected: true,
+    })
+  );
+
+  const pickMutation = useMutation(
+    trpc.picks.createPick.mutationOptions({
+      onSuccess: async (_, variables) => {
+        setSelectedPicks((prev) => ({
+          ...prev,
+          [variables.gameId]: variables.teamId,
+        }));
+        await queryClient.invalidateQueries(
+          trpc.picks.getManySelected.queryOptions({
+            week: currentSeason?.week,
+            league: "college-football",
+            selected: true,
+          })
+        );
+        await queryClient.invalidateQueries(
+          trpc.picks.getManySelected.queryOptions({
+            week: currentSeason?.week,
+            league: "nfl",
+            selected: true,
+          })
+        );
+      },
     })
   );
 
@@ -41,19 +73,35 @@ export const WeeklyPicksSection = ({
         <div className="flex justify-between items-center gap-5 w-full">
           <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
             <Image
-              src={g.awayTeamLogo}
-              alt={g.awayTeamName}
+              src={g.awayTeam.logo}
+              alt={g.awayTeam.name}
               fill
-              className="object-contain"
+              className="object-contain cursor-pointer"
+              onClick={() =>
+                pickMutation.mutate({
+                  gameId: g.id,
+                  teamId: g.awayTeam?.id || "",
+                  week: currentSeason?.week || 0,
+                  session,
+                })
+              }
             />
           </div>
           <div className="text-muted-foreground text-sm md:text-lg">@</div>
           <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
             <Image
-              src={g.homeTeamLogo}
-              alt={g.homeTeamName}
+              src={g.homeTeam.logo}
+              alt={g.homeTeam.name}
               fill
-              className="object-contain"
+              className="object-contain cursor-pointer"
+              onClick={() =>
+                pickMutation.mutate({
+                  gameId: g.id,
+                  teamId: g.homeTeam?.id || "",
+                  week: currentSeason?.week || 0,
+                  session,
+                })
+              }
             />
           </div>
           <div className="text-muted-foreground text-sm md:text-lg">
@@ -61,8 +109,8 @@ export const WeeklyPicksSection = ({
           </div>
           <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
             <Image
-              src={g.pickedTeamLogo}
-              alt={g.pickedTeamName}
+              src={g.pickedTeam.logo}
+              alt={g.pickedTeam.name}
               fill
               className="object-contain"
             />
@@ -81,7 +129,9 @@ export const WeeklyPicksSection = ({
             <p className="text-muted-foreground">College</p>
             <div className="w-full p-3 space-y-4">
               {college.items.length === 0 ? (
-                <p className="text-muted-foreground">You haven't made any picks yet</p>
+                <p className="text-muted-foreground">
+                  You haven't made any picks yet
+                </p>
               ) : null}
               {college.items.map((g) => renderGameCard(g, "college"))}
             </div>
@@ -90,7 +140,9 @@ export const WeeklyPicksSection = ({
             <p className="text-muted-foreground">NFL</p>
             <div className="w-full p-3 space-y-4">
               {nfl.items.length === 0 ? (
-                <p className="text-muted-foreground">You haven't made any picks yet</p>
+                <p className="text-muted-foreground">
+                  You haven't made any picks yet
+                </p>
               ) : null}
               {nfl.items.map((g) => renderGameCard(g, "nfl"))}
             </div>

@@ -18,12 +18,15 @@ import {
   User2Icon,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { DashboardUserButton } from "./dashboard-user-button";
+import { authClient } from "@/lib/auth-client";
+import { use, useEffect, useState } from "react";
+import { useTRPC } from "@/trpc/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const firstSection = [
   {
@@ -58,6 +61,25 @@ const adminSection = [
 
 export const DashboardSidebar = () => {
   const pathName = usePathname();
+  const session = authClient.getSession();
+  const trpc = useTRPC();
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    authClient.getSession().then((session) => {
+      if (session?.data?.user?.id) {
+        setUser(session.data.user.id);
+      }
+    });
+  }, []);
+
+  const userQuery = useQuery(
+    trpc.users.getOne.queryOptions({
+      id: user,
+    })
+  );
+
   return (
     <Sidebar>
       <SidebarHeader className="text-sidebar-accent-foreground">
@@ -99,32 +121,34 @@ export const DashboardSidebar = () => {
         <div className="px-4 py-2">
           <Separator className="opacity-10 text-[#5D6B68]" />
         </div>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminSection.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    className={cn(
-                      "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-side-accent from-5% via-30% via-sidebar/50 to-sidebar/50",
-                      pathName === item.href &&
-                        "bg-linear-to-r/oklch border-[#5D6B68]/10"
-                    )}
-                    isActive={pathName === item.href}
-                  >
-                    <Link href={item.href}>
-                      <item.icon className="size-5" />
-                      <span className="text-sm font-medium tracking-tight">
-                        {item.label}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {userQuery.data?.role === 1 && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminSection.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      className={cn(
+                        "h-10 hover:bg-linear-to-r/oklch border border-transparent hover:border-[#5D6B68]/10 from-side-accent from-5% via-30% via-sidebar/50 to-sidebar/50",
+                        pathName === item.href &&
+                          "bg-linear-to-r/oklch border-[#5D6B68]/10"
+                      )}
+                      isActive={pathName === item.href}
+                    >
+                      <Link href={item.href}>
+                        <item.icon className="size-5" />
+                        <span className="text-sm font-medium tracking-tight">
+                          {item.label}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="text-white">
         <DashboardUserButton />
