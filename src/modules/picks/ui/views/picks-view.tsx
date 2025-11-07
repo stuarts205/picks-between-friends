@@ -39,11 +39,25 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
 
   const collegePickMutation = useMutation(
     trpc.picks.createPick.mutationOptions({
-      onSuccess: (_, variables) => {
+      onSuccess: async (_, variables) => {
         setSelectedPicks((prev) => ({
           ...prev,
           [variables.gameId]: variables.teamId,
         }));
+        await queryClient.invalidateQueries(
+          trpc.picks.getManySelected.queryOptions({
+            week: currentSeason?.week,
+            league: "college-football",
+            selected: true,
+          })
+        );
+        await queryClient.invalidateQueries(
+          trpc.picks.getManySelected.queryOptions({
+            week: currentSeason?.week,
+            league: "nfl",
+            selected: true,
+          })
+        );
       },
     })
   );
@@ -116,12 +130,12 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
 
         {/* Pick column */}
         <div className="w-1/3 flex flex-col items-center justify-center border-l pl-4">
-          {pickTeam ? (
+          {g.pickedTeam ? (
             <div className="flex flex-col items-center">
-              {pickTeam.logo && (
+              {g.pickedTeam.logo && (
                 <Image
-                  src={pickTeam.logo}
-                  alt={pickTeam.name}
+                  src={g.pickedTeam.logo}
+                  alt={g.pickedTeam.name}
                   width={45}
                   height={45}
                 />
@@ -137,15 +151,12 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
 
   return (
     <div className="flex flex-col md:flex-row items-start justify-between gap-3 px-3 md:px-8 w-full">
-      {/* College Games */}
       <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
         <h1 className="text-md font-semibold mb-4">College Games</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           {college.items.map((g) => renderGameCard(g, "college"))}
         </div>
       </div>
-
-      {/* NFL Games */}
       <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
         <h1 className="text-md font-semibold mb-4">NFL Games</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
