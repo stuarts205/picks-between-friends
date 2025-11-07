@@ -7,6 +7,18 @@ export function cn(...inputs: ClassValue[]) {
 
 export let powerFiveId = ["8", "1", "18", "4", "9", "5"];
 
+export function getGameStatus(gameId: string, league: string) {
+  return fetch(`http://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`)
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to fetch ESPN API");
+      return response.json();
+    })
+    .then((data) => {
+      const status = data?.header?.competitions[0]?.status?.type?.name;
+      return status;
+    });
+}
+
 export const getCollegeTeams = async () => {
   const repsonse = await fetch(
     "http://site.api.espn.com/apis/site/v2/sports/football/college-football/teams?limit=5000"
@@ -96,3 +108,4 @@ function generateDateSeries(startDateStr: string, days: number): string[] {
 
   return results;
 }
+
