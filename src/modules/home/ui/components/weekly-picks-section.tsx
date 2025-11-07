@@ -5,8 +5,11 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { get } from "http";
+import { getGameStatus } from "@/lib/utils";
+import { GameStartedDialog } from "@/components/game-started-dialog";
 
 interface WeeklyPicksSectionProps {
   session: any;
@@ -20,8 +23,9 @@ export const WeeklyPicksSection = ({
   const [selectedPicks, setSelectedPicks] = useState<Record<string, string>>(
     {}
   );
+  const [showGameStartedDialog, setShowGameStartedDialog] = useState(false);
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient();  
 
   const { data: college } = useSuspenseQuery(
     trpc.picks.getManySelected.queryOptions({
@@ -42,6 +46,7 @@ export const WeeklyPicksSection = ({
   const pickMutation = useMutation(
     trpc.picks.createPick.mutationOptions({
       onSuccess: async (_, variables) => {
+        console.log(variables)
         setSelectedPicks((prev) => ({
           ...prev,
           [variables.gameId]: variables.teamId,
@@ -64,10 +69,33 @@ export const WeeklyPicksSection = ({
     })
   );
 
+  const handlePick = async (userGameId: string, gameId: string, league: string, teamId: string) => {
+    console.log("gameId:", gameId, "teamId:", teamId, "week:", currentSeason?.week, "session:", session);
+  try {
+    const status = await getGameStatus(userGameId, league);
+    if (status !== "STATUS_SCHEDULED") {
+      setShowGameStartedDialog(true);
+      return;
+    }    
+
+    await pickMutation.mutateAsync({
+      gameId,
+      teamId: teamId || "",
+      week: currentSeason?.week,
+      session
+    });
+
+    console.log("Pick submitted successfully!");
+  } catch (err) {
+    console.error("Failed to submit pick:", err);
+    alert("Something went wrong while submitting your pick.");
+  }
+};
+
   const renderGameCard = (g: any, league: string) => {
     return (
       <div
-        key={g.gameId}
+        key={g.gameid}
         className="flex flex-col items-center p-3 md:p-5 w-full"
       >
         <div className="flex justify-between items-center gap-5 w-full">
@@ -78,12 +106,7 @@ export const WeeklyPicksSection = ({
               fill
               className="object-contain cursor-pointer"
               onClick={() =>
-                pickMutation.mutate({
-                  gameId: g.id,
-                  teamId: g.awayTeam?.id || "",
-                  week: currentSeason?.week || 0,
-                  session,
-                })
+                handlePick(g.gameid, g.id, league, g.awayTeam?.id)
               }
             />
           </div>
@@ -95,12 +118,7 @@ export const WeeklyPicksSection = ({
               fill
               className="object-contain cursor-pointer"
               onClick={() =>
-                pickMutation.mutate({
-                  gameId: g.id,
-                  teamId: g.homeTeam?.id || "",
-                  week: currentSeason?.week || 0,
-                  session,
-                })
+                handlePick(g.gameid, g.id, league, g.homeTeam?.id)
               }
             />
           </div>
@@ -122,6 +140,7 @@ export const WeeklyPicksSection = ({
 
   return (
     <>
+    <GameStartedDialog show={showGameStartedDialog} onClose={() => setShowGameStartedDialog(false)} />
       <div className="flex flex-col items-start p-4 rounded-lg border gap-3">
         <h2 className="text-md text-muted-foreground">This week's picks</h2>
         <div className="w-full flex flex-col md:flex-row justify-between items-start gap-3">
@@ -133,7 +152,7 @@ export const WeeklyPicksSection = ({
                   You haven't made any picks yet
                 </p>
               ) : null}
-              {college.items.map((g) => renderGameCard(g, "college"))}
+              {college.items.map((g) => renderGameCard(g, "college-football"))}
             </div>
           </div>
           <div className="flex flex-col items-start p-4 rounded-lg border w-full md:w-1/2 gap-3">
