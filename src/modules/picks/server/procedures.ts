@@ -123,8 +123,6 @@ export const picksRouter = createTRPCRouter({
         )
         .orderBy(game.gameid);
 
-        console.log(data);
-
       return { items: data };
     }),
 });

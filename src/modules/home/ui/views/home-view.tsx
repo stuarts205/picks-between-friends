@@ -1,5 +1,4 @@
 "use client";
-
 import { SeasonGetOne } from "@/modules/season/type";
 import { HomeViewHeader } from "../components/home-view-header";
 import { LoadingState } from "@/components/loading-state";

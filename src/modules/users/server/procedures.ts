@@ -135,6 +135,22 @@ export const usersRouter = createTRPCRouter({
 
       return existingUser;
     }),
+    getOneBySession: protectedProcedure
+    .query(async ({ ctx }) => {
+      const userId = ctx.auth.user.id;
+      const [existingUser] = await db
+        .select({
+          ...getTableColumns(user),
+        })
+        .from(user)
+        .where(eq(user.id, userId));
+
+      if (!existingUser) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      return existingUser;
+    }),
   getMany: protectedProcedure
     .input(
       z.object({
