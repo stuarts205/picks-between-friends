@@ -112,17 +112,18 @@ export const picksRouter = createTRPCRouter({
         .from(game)
         .leftJoin(homeTeam, eq(game.homeId, homeTeam.id))
         .leftJoin(awayTeam, eq(game.awayId, awayTeam.id))
-        .leftJoin(userPick, and(eq(userPick.gameId, game.id)))
+        .leftJoin(userPick, and(eq(userPick.gameId, game.id), eq(userPick.userId, ctxUser.id)))
         .leftJoin(pickedTeam, eq(userPick.teamId, pickedTeam.id))
         .where(
           and(
-            eq(userPick.userId, ctxUser.id),
             week ? eq(game.week, week) : undefined,
             league ? eq(game.league, league) : undefined,
             selected === true ? eq(game.selected, true) : undefined
           )
         )
         .orderBy(game.gameid);
+
+        console.log(data);
 
       return { items: data };
     }),
