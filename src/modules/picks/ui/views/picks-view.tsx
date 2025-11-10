@@ -10,6 +10,8 @@ import { LoadingState } from "@/components/loading-state";
 import { ErrorState } from "@/components/error-state";
 import { SeasonGetOne } from "@/modules/season/type";
 import Image from "next/image";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { getGameStatus } from "@/lib/utils";
 
 interface GamesViewProps {
   session: any;
@@ -19,7 +21,10 @@ interface GamesViewProps {
 export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const [selectedPicks, setSelectedPicks] = useState<Record<string, string>>({});
+  const [selectedPicks, setSelectedPicks] = useState<Record<string, string>>(
+    {}
+  );
+  const [showGameStartedDialog, setShowGameStartedDialog] = useState(false);
 
   const { data: college } = useSuspenseQuery(
     trpc.picks.getManySelected.queryOptions({
@@ -62,6 +67,34 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
     })
   );
 
+  const handlePick = async (
+    userGameId: string,
+    gameId: string,
+    league: string,
+    teamId: string
+  ) => {
+    console.log("Handling pick for game:", userGameId, "team:", league, teamId);
+    try {
+      const status = await getGameStatus(userGameId, league);
+      if (status !== "STATUS_SCHEDULED") {
+        setShowGameStartedDialog(true);
+        return;
+      }
+
+      await pickMutation.mutateAsync({
+        gameId,
+        teamId: teamId || "",
+        week: currentSeason?.week,
+        session,
+      });
+
+      console.log("Pick submitted successfully!");
+    } catch (err) {
+      console.error("Failed to submit pick:", err);
+      alert("Something went wrong while submitting your pick.");
+    }
+  };
+
   const renderGameCard = (g: any, league: string) => {
     const selectedTeamId = selectedPicks[g.id];
     const pickTeam =
@@ -79,14 +112,7 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
         <div className="flex flex-col items-center w-2/3">
           <div
             className="flex flex-col items-center cursor-pointer"
-            onClick={() =>
-              pickMutation.mutate({
-                gameId: g.id,
-                teamId: g.awayTeam?.id || "",
-                week: currentSeason?.week || 0,
-                session,
-              })
-            }
+            onClick={() => handlePick(g.gameid, g.id, league, g.awayTeam?.id)}
           >
             {g.awayTeam?.logo && (
               <Image
@@ -97,21 +123,16 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
               />
             )}
             <div className="text-sm text-foreground">{g.awayTeam?.name}</div>
-            <div className="text-sm text-foreground">{g.awayTeam?.nickname}</div>
+            <div className="text-sm text-foreground">
+              {g.awayTeam?.nickname}
+            </div>
           </div>
 
           <span className="text-gray-500 text-xs my-2">&#64;</span>
 
           <div
             className="flex flex-col items-center cursor-pointer"
-            onClick={() =>
-              pickMutation.mutate({
-                gameId: g.id,
-                teamId: g.homeTeam?.id || "",
-                week: currentSeason?.week || 0,
-                session,
-              })
-            }
+            onClick={() => handlePick(g.gameid, g.id, league, g.homeTeam?.id)}
           >
             {g.homeTeam?.logo && (
               <Image
@@ -122,7 +143,9 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
               />
             )}
             <div className="text-sm text-foreground">{g.homeTeam?.name}</div>
-            <div className="text-sm text-foreground">{g.homeTeam?.nickname}</div>
+            <div className="text-sm text-foreground">
+              {g.homeTeam?.nickname}
+            </div>
           </div>
 
           <div className="mt-3 text-xs text-gray-600">Spread: {g.spread}</div>
@@ -150,20 +173,32 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-start justify-between gap-3 px-3 md:px-8 w-full">
-      <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
-        <h1 className="text-md font-semibold mb-4">College Games</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-          {college.items.map((g) => renderGameCard(g, "college"))}
+    <>
+      <ResponsiveDialog
+        open={showGameStartedDialog}
+        onOpenChange={setShowGameStartedDialog}
+        title="Game Already Started"
+        description=""
+      >
+        <p>
+          You cannot make or change picks for games that have already started.
+        </p>
+      </ResponsiveDialog>
+      <div className="flex flex-col md:flex-row items-start justify-between gap-3 px-3 md:px-8 w-full">
+        <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
+          <h1 className="text-md font-semibold mb-4">College Games</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            {college.items.map((g) => renderGameCard(g, "college-football"))}
+          </div>
+        </div>
+        <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
+          <h1 className="text-md font-semibold mb-4">NFL Games</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            {nfl.items.map((g) => renderGameCard(g, "nfl"))}
+          </div>
         </div>
       </div>
-      <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
-        <h1 className="text-md font-semibold mb-4">NFL Games</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-          {nfl.items.map((g) => renderGameCard(g, "nfl"))}
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
