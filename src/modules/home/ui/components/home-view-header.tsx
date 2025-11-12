@@ -2,8 +2,11 @@
 import { UserGetOne } from "@/modules/users/types";
 import React, { useEffect, useState } from "react";
 
+
 interface HomeViewHeaderProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentSeason: any;
   user: UserGetOne;
 }

@@ -19,7 +19,6 @@ import { OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { FaGithub, FaGoogle } from "react-icons/fa";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
 
 const formSchema = z

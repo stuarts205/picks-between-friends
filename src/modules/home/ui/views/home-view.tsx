@@ -8,6 +8,7 @@ import { UserGetOne } from "@/modules/users/types";
 import { StandingsSection } from "../components/standings-section";
 
 interface HomeViewProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
   currentSeason: SeasonGetOne;
   user: UserGetOne;

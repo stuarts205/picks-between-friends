@@ -5,15 +5,15 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { get } from "http";
 import { getGameStatus } from "@/lib/utils";
-import { GameStartedDialog } from "@/components/game-started-dialog";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 
 interface WeeklyPicksSectionProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentSeason: any;
 }
 
@@ -95,7 +95,7 @@ export const WeeklyPicksSection = ({
       alert("Something went wrong while submitting your pick.");
     }
   };
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderGameCard = (g: any, league: string) => {
     return (
       <div
@@ -151,14 +151,14 @@ export const WeeklyPicksSection = ({
         </p>
       </ResponsiveDialog>
       <div className="flex flex-col items-start p-4 rounded-lg border gap-3">
-        <h2 className="text-md text-muted-foreground">This week's picks</h2>
+        <h2 className="text-md text-muted-foreground">This week&apos;s picks</h2>
         <div className="w-full flex flex-col md:flex-row justify-between items-start gap-3">
           <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border w-full md:w-1/2 gap-3">
             <p className="text-muted-foreground">College</p>
             <div className="w-full p-3 space-y-4">
               {college.items.length === 0 ? (
                 <p className="text-muted-foreground">
-                  You haven't made any picks yet
+                  You haven&apos;t made any picks yet
                 </p>
               ) : null}
               {college.items.map((g) => renderGameCard(g, "college-football"))}
@@ -169,7 +169,7 @@ export const WeeklyPicksSection = ({
             <div className="w-full p-3 space-y-4">
               {nfl.items.length === 0 ? (
                 <p className="text-muted-foreground">
-                  You haven't made any picks yet
+                  You haven&apos;t made any picks yet
                 </p>
               ) : null}
               {nfl.items.map((g) => renderGameCard(g, "nfl"))}

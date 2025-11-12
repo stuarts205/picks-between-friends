@@ -1,7 +1,6 @@
 import { db } from "@/db";
-import { game, pick, session, team, user } from "@/db/schema";
+import { game, pick, team } from "@/db/schema";
 import {
-  baseProcedure,
   createTRPCRouter,
   protectedProcedure,
 } from "@/trpc/init";

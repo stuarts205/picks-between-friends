@@ -14,6 +14,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { getGameStatus } from "@/lib/utils";
 
 interface GamesViewProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
   currentSeason: SeasonGetOne;
 }
@@ -94,7 +95,7 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
       alert("Something went wrong while submitting your pick.");
     }
   };
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderGameCard = (g: any, league: string) => {
     const selectedTeamId = selectedPicks[g.id];
     const pickTeam =

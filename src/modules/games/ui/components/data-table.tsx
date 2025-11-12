@@ -37,10 +37,13 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+  
   const selectedCollegeGamesCount = collegeData.filter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (game: any) => game.selected
   ).length;
   const selectedNflGamesCount = nflData.filter(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (game: any) => game.selected
   ).length;
 
