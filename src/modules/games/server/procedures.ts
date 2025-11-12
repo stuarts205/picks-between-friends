@@ -1,8 +1,8 @@
 import { db } from "@/db";
-import { game, team, user } from "@/db/schema";
+import { game, team } from "@/db/schema";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import z from "zod";
-import { eq, getTableColumns, and, or } from "drizzle-orm";
+import { eq, getTableColumns, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import {
   gamesInsertManySchema,
@@ -13,7 +13,7 @@ import {
 export const gamesRouter = createTRPCRouter({
   selectGame: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const [currentGame] = await db
         .select()
         .from(game)
@@ -37,7 +37,7 @@ export const gamesRouter = createTRPCRouter({
     }),
   removeGame: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const [currentGame] = await db
         .select()
         .from(game)
@@ -66,8 +66,7 @@ export const gamesRouter = createTRPCRouter({
         spread: z.string(),
       })
     )
-    .mutation(async ({ input, ctx }) => {
-      const ctxUser = ctx.auth.user;
+    .mutation(async ({ input }) => {
       const [currentGame] = await db
         .select()
         .from(game)
@@ -157,8 +156,7 @@ export const gamesRouter = createTRPCRouter({
     ),
   update: protectedProcedure
     .input(gamesUpdateSchema)
-    .mutation(async ({ input, ctx }) => {
-      const ctxUser = ctx.auth.user;
+    .mutation(async ({ input }) => {
       const [currentGame] = await db
         .select()
         .from(game)
@@ -189,7 +187,7 @@ export const gamesRouter = createTRPCRouter({
     }),
   create: protectedProcedure
     .input(gamesInsertSchema)
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const [homeId] = await db
         .select()
         .from(team)

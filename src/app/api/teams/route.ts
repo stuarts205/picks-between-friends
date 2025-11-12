@@ -1,14 +1,15 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { getCollegeTeams, getNflTeams } from "@/lib/utils";
 import { db } from "@/db";
 import { team } from "@/db/schema";
 
 export const maxDuration = 300;
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const collegeTeams = await getCollegeTeams();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const insertData = collegeTeams.sports[0].leagues[0].teams.map((t: any) => {
       let newLogo = "";
       if (t.team.logos && t.team.logos.length > 0) {
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
 
     const nflTeams = await getNflTeams();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const insertNflData = nflTeams.sports[0].leagues[0].teams.map((t: any) => {
         let newLogo = "";
         if (t.team.logos && t.team.logos.length > 0) {

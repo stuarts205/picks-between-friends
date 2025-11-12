@@ -24,9 +24,9 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { DashboardUserButton } from "./dashboard-user-button";
 import { authClient } from "@/lib/auth-client";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTRPC } from "@/trpc/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const firstSection = [
   {
@@ -61,10 +61,9 @@ const adminSection = [
 
 export const DashboardSidebar = () => {
   const pathName = usePathname();
-  const session = authClient.getSession();
   const trpc = useTRPC();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     authClient.getSession().then((session) => {

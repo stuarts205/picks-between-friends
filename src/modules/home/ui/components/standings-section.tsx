@@ -5,6 +5,7 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
 
 interface StandingsSectionProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentSeason: any;
 }
 

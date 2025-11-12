@@ -1,14 +1,16 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
-export let powerFiveId = ["8", "1", "18", "4", "9", "5"];
+export const powerFiveId = ["8", "1", "18", "4", "9", "5"];
 
 export function getGameStatus(gameId: string, league: string) {
-  return fetch(`http://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`)
+  return fetch(
+    `http://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`
+  )
     .then((response) => {
       if (!response.ok) throw new Error("Failed to fetch ESPN API");
       return response.json();
@@ -17,6 +19,60 @@ export function getGameStatus(gameId: string, league: string) {
       const status = data?.header?.competitions[0]?.status?.type?.name;
       return status;
     });
+}
+
+export function getGameScores(gameId: string, league: string) {
+  return fetch(
+    `http://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`
+  )
+    .then((response) => {
+      if (!response.ok) throw new Error("Failed to fetch ESPN API");
+      return response.json();
+    })
+    .then(async (data) => {
+      const pickcenter = data.pickcenter?.[0];
+      if (!pickcenter) return { covered: null, reason: "No pickcenter data" };
+      const favoriteTeamId = pickcenter.homeTeamOdds.favorite
+        ? pickcenter.homeTeamOdds.teamId
+        : pickcenter.awayTeamOdds.teamId;
+
+      let coveringTeamId: string | null = null;
+
+      if (pickcenter.pointSpread?.home?.close?.outcome === "WIN") {
+        coveringTeamId = pickcenter.homeTeamOdds.teamId;
+      } else if (pickcenter.pointSpread?.away?.close?.outcome === "WIN") {
+        coveringTeamId = pickcenter.awayTeamOdds.teamId;
+      }
+
+      const covered =
+        pickcenter.homeTeamOdds.favorite &&
+        pickcenter.pointSpread?.home?.close?.outcome === "WIN"
+          ? true
+          : pickcenter.awayTeamOdds.favorite &&
+            pickcenter.pointSpread?.away?.close?.outcome === "WIN"
+          ? true
+          : false;
+
+      const team = await getTeamById(coveringTeamId, league);
+
+      return {
+        team,
+        gameId,
+        favoriteTeamId,
+        coveringTeamId,
+        spread: pickcenter.spread,
+        covered,
+      };
+    });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getTeamById(coveringTeamId: string | null, league: any) {
+  if (!coveringTeamId) return null;
+  const repsonse = await fetch(
+    `http://site.api.espn.com/apis/site/v2/sports/football/${league}/teams/${coveringTeamId}`
+  );
+  return await repsonse.json();
 }
 
 export const getCollegeTeams = async () => {
@@ -33,8 +89,11 @@ export const getNflTeams = async () => {
   return await repsonse.json();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getGames = async (season: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let collegeGames: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let nflGames: any[] = [];
 
   const dateList = generateDateSeries(season?.startDate, 7);
@@ -49,16 +108,18 @@ export const getGames = async (season: any) => {
 
       const leagueName = collegeData.leagues[0]?.slug ?? "college-football";
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gamesWithLeague = collegeData.events.map((game: any) => ({
         ...game,
         league: leagueName,
       }));
 
-      const filteredGames = [...collegeGames, ...gamesWithLeague].filter((game) =>
-        powerFiveId.includes(
-          game.competitions[0].competitors[0].team.conferenceId ||
-          game.competitions[0].competitors[1].team.conferenceId
-        )
+      const filteredGames = [...collegeGames, ...gamesWithLeague].filter(
+        (game) =>
+          powerFiveId.includes(
+            game.competitions[0].competitors[0].team.conferenceId ||
+              game.competitions[0].competitors[1].team.conferenceId
+          )
       );
 
       collegeGames = filteredGames;
@@ -75,6 +136,7 @@ export const getGames = async (season: any) => {
 
       const leagueName = nflData.leagues[0]?.slug ?? "nfl";
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gamesWithLeague = nflData.events.map((game: any) => ({
         ...game,
         league: leagueName,
@@ -108,4 +170,3 @@ function generateDateSeries(startDateStr: string, days: number): string[] {
 
   return results;
 }
-
