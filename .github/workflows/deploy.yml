@@ -14,8 +14,8 @@ jobs:
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.PI_HOST }}       # your Pi's public IP or DNS
-          username: ${{ stuarts205 }}   # e.g., stuarts205
-          key: ${{ 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 }}         # private SSH key (add to GitHub secrets)
+          username: ${{ secrets.PI_USER }}   # e.g., stuarts205
+          key: ${{ secrets.PI_KEY }}         # private SSH key (add to GitHub secrets)
           script: |
             cd /home/stuarts205/sites/picks-between-friends
             ./deploy.sh
