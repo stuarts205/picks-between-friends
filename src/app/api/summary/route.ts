@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'gameId is required' }, { status: 400 });
   }
 
-  const url = `http://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${gameId}`;
+  const url = `https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary?event=${gameId}`;
 
   try {
     const response = await fetch(url);

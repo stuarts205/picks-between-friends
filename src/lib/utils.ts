@@ -9,7 +9,7 @@ export const powerFiveId = ["8", "1", "18", "4", "9", "5"];
 
 export function getGameStatus(gameId: string, league: string) {
   return fetch(
-    `http://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`
+    `https://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`
   )
     .then((response) => {
       if (!response.ok) throw new Error("Failed to fetch ESPN API");
@@ -23,7 +23,7 @@ export function getGameStatus(gameId: string, league: string) {
 
 export function getGameScores(gameId: string, league: string) {
   return fetch(
-    `http://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`
+    `https://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`
   )
     .then((response) => {
       if (!response.ok) throw new Error("Failed to fetch ESPN API");
@@ -70,21 +70,21 @@ export function getGameScores(gameId: string, league: string) {
 export async function getTeamById(coveringTeamId: string | null, league: any) {
   if (!coveringTeamId) return null;
   const repsonse = await fetch(
-    `http://site.api.espn.com/apis/site/v2/sports/football/${league}/teams/${coveringTeamId}`
+    `https://site.api.espn.com/apis/site/v2/sports/football/${league}/teams/${coveringTeamId}`
   );
   return await repsonse.json();
 }
 
 export const getCollegeTeams = async () => {
   const repsonse = await fetch(
-    "http://site.api.espn.com/apis/site/v2/sports/football/college-football/teams?limit=5000"
+    "https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams?limit=5000"
   );
   return await repsonse.json();
 };
 
 export const getNflTeams = async () => {
   const repsonse = await fetch(
-    "http://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
+    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
   );
   return await repsonse.json();
 };
@@ -100,7 +100,7 @@ export const getGames = async (season: any) => {
 
   for (const date of dateList) {
     const collegeResponse = await fetch(
-      `http://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=${date}`
+      `https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?dates=${date}`
     );
 
     if (collegeResponse.ok) {
@@ -128,7 +128,7 @@ export const getGames = async (season: any) => {
 
   for (const date of dateList) {
     const nflResponse = await fetch(
-      `http://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${date}`
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${date}`
     );
 
     if (nflResponse.ok) {
