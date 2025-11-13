@@ -1,9 +1,6 @@
 import { db } from "@/db";
 import { game, pick, team } from "@/db/schema";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-} from "@/trpc/init";
+import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import z from "zod";
 import { eq, getTableColumns, and } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
@@ -20,6 +17,14 @@ export const picksRouter = createTRPCRouter({
     )
     .mutation(async ({ input }) => {
       const { gameId, teamId, week, session } = input;
+
+      const [pickSlug] = await db
+        .select({
+          slug: team.slug,
+        })
+        .from(team)
+        .where(eq(team.id, teamId))
+        .limit(1);
 
       if (!gameId || !teamId) {
         throw new Error("Invalid input");
@@ -39,7 +44,7 @@ export const picksRouter = createTRPCRouter({
       if (existingPick) {
         const updatedPick = await db
           .update(pick)
-          .set({ teamId: teamId })
+          .set({ teamId: teamId, teamSlug: pickSlug?.slug || "" })
           .where(eq(pick.id, existingPick.id))
           .returning();
         return updatedPick;
@@ -51,6 +56,7 @@ export const picksRouter = createTRPCRouter({
           id: crypto.randomUUID(),
           gameId: gameId,
           teamId: teamId,
+          teamSlug: pickSlug?.slug || "",
           userId: session.user.id,
           userName: session.user.name,
           week: week,
@@ -111,7 +117,10 @@ export const picksRouter = createTRPCRouter({
         .from(game)
         .leftJoin(homeTeam, eq(game.homeId, homeTeam.id))
         .leftJoin(awayTeam, eq(game.awayId, awayTeam.id))
-        .leftJoin(userPick, and(eq(userPick.gameId, game.id), eq(userPick.userId, ctxUser.id)))
+        .leftJoin(
+          userPick,
+          and(eq(userPick.gameId, game.id), eq(userPick.userId, ctxUser.id))
+        )
         .leftJoin(pickedTeam, eq(userPick.teamId, pickedTeam.id))
         .where(
           and(

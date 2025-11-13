@@ -144,6 +144,7 @@ export const gamesRouter = createTRPCRouter({
               spread: gameInput.spread,
               homeId: homeTeam.id,
               awayId: awayTeam.id,
+              favoriteSlug: gameInput.spread.includes('-') ? homeTeam.slug || "" : awayTeam.slug || "",
               favorite: gameInput.favorite,
               gameid: gameInput.gameId,
             })
@@ -212,6 +213,7 @@ export const gamesRouter = createTRPCRouter({
           homeId: homeId.id,
           awayId: awayId.id,
           favorite: input.favorite,
+          favoriteSlug: input.spread.includes('-') ? homeId.slug || "" : awayId.slug || "",
           gameid: input.gameId,
         })
         .returning();

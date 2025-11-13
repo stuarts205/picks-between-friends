@@ -77,6 +77,7 @@ export const team = pgTable("team", {
     .$defaultFn(() => nanoid()),
   name: text("name").notNull(),
   nickname: text("nickname").notNull(),
+  slug: text("slug"),
   abbreviation: text("abbreviation"),
   conference: text("conference"),
   logo: text("logo"),
@@ -97,6 +98,7 @@ export const game = pgTable("game", {
   awayId: text("away_id")
     .notNull()
     .references(() => team.id),
+  favoriteSlug: text("favorite_slug").notNull(),
   favorite: text("favorite").notNull(),
   selected: boolean("selected"),
   winner: text("winner"),
@@ -115,6 +117,7 @@ export const pick = pgTable("pick", {
   teamId: text("team_id")
     .notNull()
     .references(() => team.id),
+  teamSlug: text("team_slug").notNull(),
   gameId: text("game_id")
     .notNull()
     .references(() => game.id),
