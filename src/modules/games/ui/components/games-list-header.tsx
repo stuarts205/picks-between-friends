@@ -51,7 +51,7 @@ export const GamesListHeader = () => {
       toast.error("No games found for this week");
       setIsLoading(false);
       return;
-    }
+    }    
 
     const formattedGames: GameInput[] = games.map((game) => ({
       gameId: game.competitions[0].id,

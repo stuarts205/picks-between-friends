@@ -22,6 +22,7 @@ export async function POST() {
         abbreviation: t.team.abbreviation ?? null,
         conference: null, 
         logo: newLogo ?? null,
+        slug: t.team.slug,
         league: "College",
       };
     });
@@ -43,6 +44,7 @@ export async function POST() {
             abbreviation: t.team.abbreviation ?? null,
             conference: t.team.conference ?? null,
             logo: newLogo ?? null,
+            slug: t.team.slug,
             league: "NFL",
         }
     })
