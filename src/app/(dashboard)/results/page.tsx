@@ -25,6 +25,9 @@ const Page = async () => {
       week: currentSeason?.week,
     })
   );
+  void queryClient.prefetchQuery(
+    trpc.results.getUpdatedResults.queryOptions()
+  );
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

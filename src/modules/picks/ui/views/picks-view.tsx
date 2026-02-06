@@ -74,7 +74,6 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
     league: string,
     teamId: string
   ) => {
-    console.log("Handling pick for game:", userGameId, "team:", league, teamId);
     try {
       const status = await getGameStatus(userGameId, league);
       if (status !== "STATUS_SCHEDULED") {
@@ -89,7 +88,6 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
         session,
       });
 
-      console.log("Pick submitted successfully!");
     } catch (err) {
       console.error("Failed to submit pick:", err);
       alert("Something went wrong while submitting your pick.");

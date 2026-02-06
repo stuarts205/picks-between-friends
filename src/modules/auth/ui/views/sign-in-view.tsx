@@ -57,10 +57,10 @@ export const SignInView = () => {
         onError: (error) => {
           setPending(false);
           setError(
-            error.error.message || "Something went wrong. Please try again."
+            error.error.message || "Something went wrong. Please try again.",
           );
         },
-      }
+      },
     );
   };
 
@@ -123,32 +123,14 @@ export const SignInView = () => {
                 <Button type="submit" className="w-full" disabled={pending}>
                   Sign In
                 </Button>
-                {/* <div
-                  className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0
-                    after:flex after:items-center after:border-t"
-                >
-                  <span className="bg-card text-muted-foreground relative z-10 px-2">
-                    Or continue with
-                  </span>
+                <div className="flex w-full items-center justify-end">
+                  <Link
+                    href="/password-reset"
+                    className="text-sm text-muted-foreground hover:underline hover:underline-offset-4"
+                  >
+                    Forgot passoword?{" "}
+                  </Link>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="w-full"
-                    disabled={pending}
-                  >
-                    <FaGoogle />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="w-full"
-                    disabled={pending}
-                  >
-                    <FaGithub />
-                  </Button>
-                </div> */}
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{" "}
                   <Link
@@ -161,7 +143,6 @@ export const SignInView = () => {
               </div>
             </form>
           </Form>
-
           <div
             className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 
             items-center justify-center"
@@ -171,19 +152,6 @@ export const SignInView = () => {
           </div>
         </CardContent>
       </Card>
-      <div
-        className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs 
-        text-balance *:[a]:underline *:[a]:underline-offset-4"
-      >
-        By signing in, you agree to our{" "}
-        <a href="/terms" target="_blank" rel="noreferrer">
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a href="/privacy" target="_blank" rel="noreferrer">
-          Privacy Policy
-        </a>
-      </div>
     </div>
   );
 };
