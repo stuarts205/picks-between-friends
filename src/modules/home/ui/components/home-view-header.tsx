@@ -24,11 +24,11 @@ export const HomeViewHeader = ({
           <div className="flex items-stretch justify-between gap-3 mb-8">
             <div className="flex flex-col md:flex-row items-center justify-between p-4 rounded-lg border w-1/2">
               <h2 className="text-lg md:text-2xl font-medium">Total Points</h2>
-              <p className="text-2xl font-medium">{user?.overAllPoints}</p>
+              <p className="text-2xl font-medium">{user?.overAllPoints || 0}</p>
             </div>
             <div className="flex flex-col md:flex-row items-center justify-between p-4 rounded-lg border w-1/2">
               <h2 className="text-lg md:text-2xl font-medium">Last Week’s Points</h2>
-              <p className="text-2xl font-medium">{user?.weeklyPoints}</p>
+              <p className="text-2xl font-medium">{user?.weeklyPoints || 0}</p>
             </div>
           </div>
         </div>

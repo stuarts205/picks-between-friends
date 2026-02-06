@@ -18,3 +18,11 @@ export const gamesUpdateSchema = gamesInsertSchema
   .extend({
     id: z.string().min(1, { message: "ID is required" }),
   });
+
+  export const gamesUpdateWinnerSchema = z.object({
+    id: z.string().min(1, { message: "ID is required" }),
+    gameId: z.string().min(1, { message: "Winner is required" }),
+    league: z.string(),
+  });
+
+  export const gamesUpdateManySchema = z.array(gamesUpdateWinnerSchema);  

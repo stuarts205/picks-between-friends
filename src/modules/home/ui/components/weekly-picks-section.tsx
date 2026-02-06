@@ -88,8 +88,6 @@ export const WeeklyPicksSection = ({
         week: currentSeason?.week,
         session,
       });
-
-      console.log("Pick submitted successfully!");
     } catch (err) {
       console.error("Failed to submit pick:", err);
       alert("Something went wrong while submitting your pick.");

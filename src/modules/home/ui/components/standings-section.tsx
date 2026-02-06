@@ -38,7 +38,7 @@ export const StandingsSection = ({ currentSeason }: StandingsSectionProps) => {
                 >
                   <span className="text-sm font-medium">{user.name}</span>
                   <span className="text-sm text-muted-foreground">
-                    {user.overAllPoints} points
+                    {user.overAllPoints || 0} points
                   </span>
                 </div>
               ))

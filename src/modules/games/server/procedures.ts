@@ -8,6 +8,7 @@ import {
   gamesInsertManySchema,
   gamesInsertSchema,
   gamesUpdateSchema,
+  gamesUpdateWinnerSchema,
 } from "../schemas";
 
 export const gamesRouter = createTRPCRouter({
@@ -94,7 +95,7 @@ export const gamesRouter = createTRPCRouter({
         .returning();
 
       return updatedGame;
-    }),
+    }),    
   createMany: protectedProcedure
     .input(gamesInsertManySchema)
     .mutation(

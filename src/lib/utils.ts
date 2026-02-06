@@ -21,7 +21,7 @@ export function getGameStatus(gameId: string, league: string) {
     });
 }
 
-export function getGameScores(gameId: string, league: string) {
+export function getGameScores(gameId: string, league: string, id: string) {
   return fetch(
     `https://site.api.espn.com/apis/site/v2/sports/football/${league}/summary?event=${gameId}`
   )
@@ -56,6 +56,7 @@ export function getGameScores(gameId: string, league: string) {
       const team = await getTeamById(coveringTeamId, league);
 
       return {
+        id,
         team,
         gameId,
         favoriteTeamId,
