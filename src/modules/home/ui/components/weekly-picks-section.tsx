@@ -22,7 +22,7 @@ export const WeeklyPicksSection = ({
   currentSeason,
 }: WeeklyPicksSectionProps) => {
   const [selectedPicks, setSelectedPicks] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [showGameStartedDialog, setShowGameStartedDialog] = useState(false);
   const trpc = useTRPC();
@@ -33,7 +33,7 @@ export const WeeklyPicksSection = ({
       week: currentSeason?.week,
       league: "college-football",
       selected: true,
-    })
+    }),
   );
 
   const { data: nfl } = useSuspenseQuery(
@@ -41,7 +41,7 @@ export const WeeklyPicksSection = ({
       week: currentSeason?.week,
       league: "nfl",
       selected: true,
-    })
+    }),
   );
 
   const pickMutation = useMutation(
@@ -56,24 +56,24 @@ export const WeeklyPicksSection = ({
             week: currentSeason?.week,
             league: "college-football",
             selected: true,
-          })
+          }),
         );
         await queryClient.invalidateQueries(
           trpc.picks.getManySelected.queryOptions({
             week: currentSeason?.week,
             league: "nfl",
             selected: true,
-          })
+          }),
         );
       },
-    })
+    }),
   );
 
   const handlePick = async (
     userGameId: string,
     gameId: string,
     league: string,
-    teamId: string
+    teamId: string,
   ) => {
     try {
       const status = await getGameStatus(userGameId, league);
@@ -101,35 +101,65 @@ export const WeeklyPicksSection = ({
         className="flex flex-col items-center p-3 md:p-5 w-full"
       >
         <div className="flex justify-between items-center gap-5 w-full">
-          <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
-            <Image
-              src={g.awayTeam.logo}
-              alt={g.awayTeam.name}
-              fill
-              className="object-contain cursor-pointer"
-              onClick={() => handlePick(g.gameid, g.id, league, g.awayTeam?.id)}
-            />
+          <div
+            className="relative w-8 h-8 md:w-[45px] md:h-[45px]"
+            onClick={() =>
+              g.awayTeam?.id
+                ? handlePick(g.gameid, g.id, league, g.awayTeam.id)
+                : null
+            }
+          >
+            {g.awayTeam?.logo ? (
+              <Image
+                src={g.awayTeam.logo}
+                alt={g.awayTeam?.name || "Away team"}
+                fill
+                className="object-contain cursor-pointer"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
+                N/A
+              </div>
+            )}
           </div>
           <div className="text-muted-foreground text-sm md:text-lg">@</div>
-          <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
-            <Image
-              src={g.homeTeam.logo}
-              alt={g.homeTeam.name}
-              fill
-              className="object-contain cursor-pointer"
-              onClick={() => handlePick(g.gameid, g.id, league, g.homeTeam?.id)}
-            />
+          <div
+            className="relative w-8 h-8 md:w-[45px] md:h-[45px]"
+            onClick={() =>
+              g.homeTeam?.id
+                ? handlePick(g.gameid, g.id, league, g.homeTeam.id)
+                : null
+            }
+          >
+            {g.homeTeam?.logo ? (
+              <Image
+                src={g.homeTeam.logo}
+                alt={g.homeTeam?.name || "Home team"}
+                fill
+                className="object-contain cursor-pointer"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
+                N/A
+              </div>
+            )}
           </div>
           <div className="text-muted-foreground text-sm md:text-lg">
             {g.spread}
           </div>
           <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
-            <Image
-              src={g.pickedTeam.logo}
-              alt={g.pickedTeam.name}
-              fill
-              className="object-contain"
-            />
+            {g.pickedTeam?.logo ? (
+              <Image
+                src={g.pickedTeam.logo}
+                alt={g.pickedTeam.name || "Picked team"}
+                fill
+                className="object-contain"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
+                No pick
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -149,7 +179,9 @@ export const WeeklyPicksSection = ({
         </p>
       </ResponsiveDialog>
       <div className="flex flex-col items-start p-4 rounded-lg border gap-3">
-        <h2 className="text-md text-muted-foreground">This week&apos;s picks</h2>
+        <h2 className="text-md text-muted-foreground">
+          This week&apos;s picks
+        </h2>
         <div className="w-full flex flex-col md:flex-row justify-between items-start gap-3">
           <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border w-full md:w-1/2 gap-3">
             <p className="text-muted-foreground">College</p>

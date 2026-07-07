@@ -27,6 +27,7 @@ export const PasswordResetView = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const hostUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,7 +45,7 @@ export const PasswordResetView = () => {
 
       await authClient.requestPasswordReset({
         email: values.email,
-        redirectTo: "http://localhost:3000/password-reset-form",
+        redirectTo: `${hostUrl}/password-reset-form`,
       });
 
       router.push("/email-sent"); 
