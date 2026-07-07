@@ -1,4 +1,3 @@
-import { GameGetMany, GameGetOne } from "@/modules/games/types";
 import { SeasonGetOne } from "@/modules/season/type";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -10,6 +9,29 @@ export function cn(...inputs: ClassValue[]) {
 export const powerFiveId = ["8", "1", "18", "4", "9", "5"];
 
 export const leagueMap = ["college-football", "nfl"];
+
+type EspnCompetitor = {
+  team: {
+    shortDisplayName: string;
+    conferenceId?: string;
+  };
+};
+
+type EspnOdds = {
+  spread?: number;
+  details?: string;
+};
+
+type EspnCompetition = {
+  id: string;
+  competitors: EspnCompetitor[];
+  odds?: EspnOdds[];
+};
+
+type EspnGame = {
+  competitions: EspnCompetition[];
+  league: string;
+};
 
 export function getGameStatus(gameId: string, league: string) {
   return fetch(
@@ -97,8 +119,8 @@ export const getNflTeams = async () => {
 };
 
 export const getGames = async (season: SeasonGetOne) => {
-  let collegeGames: GameGetMany[] = [];
-  let nflGames: GameGetMany[] = [];
+  let collegeGames: EspnGame[] = [];
+  let nflGames: EspnGame[] = [];
 
   const startDate = formatDateYYYYMMDD(
     new Date(String(season?.startDate).replace(" ", "T")),
@@ -113,10 +135,12 @@ export const getGames = async (season: SeasonGetOne) => {
     );
     const data = await response.json();
     if (response.ok) {
-      const gamesWithLeague = data.events.map((game: GameGetOne) => ({
-        ...game,
-        league: league,
-      }));
+      const gamesWithLeague = data.events.map(
+        (game: Omit<EspnGame, "league">) => ({
+          ...game,
+          league: league,
+        }),
+      );
       if (league === "college-football") {
         const filteredGames = [...collegeGames, ...gamesWithLeague].filter(
           (game) =>
