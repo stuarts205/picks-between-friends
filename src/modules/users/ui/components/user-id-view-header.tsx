@@ -15,24 +15,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import {
-  ChevronRightIcon,
-  TrashIcon,
-  PencilIcon,
-  MoreVerticalIcon,
-} from "lucide-react";
+import { ChevronRightIcon, TrashIcon, MoreVerticalIcon } from "lucide-react";
 
 interface UserIdViewHeaderProps {
   userId: string;
   userName: string;
-  onEdit: () => void;
   onRemove: () => void;
 }
 
 export const UserIdViewHeader = ({
   userId,
   userName,
-  onEdit,
   onRemove,
 }: UserIdViewHeaderProps) => {
   return (
@@ -44,11 +37,14 @@ export const UserIdViewHeader = ({
               <Link href={"/users"}>Users</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator className='text-foreground text-xl font-medium [&>svg]:size-4'>
+          <BreadcrumbSeparator className="text-foreground text-xl font-medium [&>svg]:size-4">
             <ChevronRightIcon />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbLink asChild className="font-medium text-xl text-foreground">
+            <BreadcrumbLink
+              asChild
+              className="font-medium text-xl text-foreground"
+            >
               <Link href={`/users/${userId}`}>{userName}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -61,12 +57,9 @@ export const UserIdViewHeader = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onEdit}>
-                <PencilIcon className="size-4 text-black " /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onRemove}>
-                <TrashIcon className="size-4 text-black " /> Delete
-            </DropdownMenuItem>
+          <DropdownMenuItem onClick={onRemove}>
+            <TrashIcon className="size-4 text-black " /> Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
