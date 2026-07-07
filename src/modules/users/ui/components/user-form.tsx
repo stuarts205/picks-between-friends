@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { UserGetOne } from "../../types";
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { usersInsertSchema } from "../../schemas";
+import { usersInsertSchema, usersUpdateSchema } from "../../schemas";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -32,16 +31,15 @@ export const UserForm = ({
   initialValues,
 }: UserFormProps) => {
   const trpc = useTRPC();
-  const router = useRouter();
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const isEdit = !!initialValues?.id;
 
   const createUser = useMutation(
     trpc.users.create.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(
-          trpc.users.getMany.queryOptions({})
+          trpc.users.getMany.queryOptions({}),
         );
         toast.success("User created successfully");
         onSuccess?.();
@@ -49,18 +47,18 @@ export const UserForm = ({
       onError: (error) => {
         toast.error(`Error creating user: ${error.message}`);
       },
-    })
+    }),
   );
 
   const updateUser = useMutation(
     trpc.users.update.mutationOptions({
       onSuccess: async () => {
         await queryClient.invalidateQueries(
-          trpc.users.getMany.queryOptions({})
+          trpc.users.getMany.queryOptions({}),
         );
         if (initialValues?.id) {
           await queryClient.invalidateQueries(
-            trpc.users.getOne.queryOptions({ id: initialValues.id })
+            trpc.users.getOne.queryOptions({ id: initialValues.id }),
           );
         }
         toast.success("User updated successfully");
@@ -69,10 +67,10 @@ export const UserForm = ({
       onError: (error) => {
         toast.error(`Error updating user: ${error.message}`);
       },
-    })
+    }),
   );
 
-  const form = useForm<z.infer<typeof usersInsertSchema>>({
+  const createForm = useForm<z.infer<typeof usersInsertSchema>>({
     resolver: zodResolver(usersInsertSchema),
     defaultValues: {
       name: initialValues?.name || "",
@@ -83,65 +81,120 @@ export const UserForm = ({
     },
   });
 
-  const isEdit = !!initialValues?.id;
+  const updateForm = useForm<z.infer<typeof usersUpdateSchema>>({
+    resolver: zodResolver(usersUpdateSchema),
+    defaultValues: {
+      id: initialValues?.id || "",
+      overAllPoints: initialValues?.overAllPoints ?? 0,
+      weeklyPoints: initialValues?.weeklyPoints ?? 0,
+    },
+  });
+
   const isPending = createUser.isPending || updateUser.isPending;
+  const createIsPending = pending || isPending;
+  const updateIsPending = updateUser.isPending;
 
-  const onSubmit = (values: z.infer<typeof usersInsertSchema>) => {
-    if (isEdit) {
-      // Make password and confirmPassword optional before deletion
-      const payload: Omit<
-        z.infer<typeof usersInsertSchema>,
-        "password" | "confirmPassword"
-      > & {
-        password?: string;
-        confirmPassword?: string;
-      } = { ...values };
-      if (!payload.password) delete payload.password;
-      if (!payload.confirmPassword) delete payload.confirmPassword;
-      updateUser.mutate({ id: initialValues.id, ...payload });
-    } else {
-      setError(null);
-      setPending(true);
+  const onCreateSubmit = (values: z.infer<typeof usersInsertSchema>) => {
+    setPending(true);
 
-      authClient.signUp.email(
-        {
-          name: values.name,
-          email: values.email,
-          password: values.password,
-          callbackURL: "/",
-        },
-        {
-          onSuccess: async () => {
-            toast.success("User created successfully");
-            onSuccess?.();
-            setPending(false);
+    authClient.signUp.email(
+      {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: async () => {
+          toast.success("User created successfully");
+          onSuccess?.();
+          setPending(false);
+          await queryClient.invalidateQueries(
+            trpc.users.getMany.queryOptions({}),
+          );
+          if (initialValues?.id) {
             await queryClient.invalidateQueries(
-              trpc.users.getMany.queryOptions({})
+              trpc.users.getOne.queryOptions({ id: initialValues.id }),
             );
-            if (initialValues?.id) {
-              await queryClient.invalidateQueries(
-                trpc.users.getOne.queryOptions({ id: initialValues.id })
-              );
-            }
-            toast.success("User created successfully");
-            onSuccess?.();
-          },
-          onError: (error) => {
-            setPending(false);
-            setError(
-              error.error.message || "Something went wrong. Please try again."
-            );
-          },
-        }
-      );
-    }
+          }
+          toast.success("User created successfully");
+          onSuccess?.();
+        },
+        onError: (error) => {
+          setPending(false);
+          toast.error(
+            error.error.message || "Something went wrong. Please try again.",
+          );
+        },
+      },
+    );
   };
 
+  const onUpdateSubmit = (values: z.infer<typeof usersUpdateSchema>) => {
+    updateUser.mutate(values);
+  };
+
+  if (isEdit) {
+    return (
+      <Form {...updateForm}>
+        <form
+          onSubmit={updateForm.handleSubmit(onUpdateSubmit)}
+          className="space-y-4"
+        >
+          <FormField
+            control={updateForm.control}
+            name="overAllPoints"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Overall Points</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} disabled={updateIsPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={updateForm.control}
+            name="weeklyPoints"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Weekly Points</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} disabled={updateIsPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex justify-between gap-x-2">
+            {onCancel && (
+              <Button
+                variant="ghost"
+                disabled={updateIsPending}
+                type="button"
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button disabled={updateIsPending} type="submit">
+              Update
+            </Button>
+          </div>
+        </form>
+      </Form>
+    );
+  }
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <Form {...createForm}>
+      <form
+        onSubmit={createForm.handleSubmit(onCreateSubmit)}
+        className="space-y-4"
+      >
         <FormField
-          control={form.control}
+          control={createForm.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -150,7 +203,7 @@ export const UserForm = ({
                 <Input
                   placeholder="e.g. John Doe"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -158,7 +211,7 @@ export const UserForm = ({
           )}
         />
         <FormField
-          control={form.control}
+          control={createForm.control}
           name="email"
           render={({ field }) => (
             <FormItem>
@@ -167,7 +220,7 @@ export const UserForm = ({
                 <Input
                   placeholder="e.g. john.doe@example.com"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -175,7 +228,7 @@ export const UserForm = ({
           )}
         />
         <FormField
-          control={form.control}
+          control={createForm.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -185,7 +238,7 @@ export const UserForm = ({
                   type="password"
                   placeholder="**********"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -193,7 +246,7 @@ export const UserForm = ({
           )}
         />
         <FormField
-          control={form.control}
+          control={createForm.control}
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
@@ -203,7 +256,7 @@ export const UserForm = ({
                   type="password"
                   placeholder="**********"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -214,15 +267,15 @@ export const UserForm = ({
           {onCancel && (
             <Button
               variant="ghost"
-              disabled={isPending}
+              disabled={createIsPending}
               type="button"
               onClick={onCancel}
             >
               Cancel
             </Button>
           )}
-          <Button disabled={isPending} type="submit">
-            {isEdit ? "Update" : "Create"}
+          <Button disabled={createIsPending} type="submit">
+            Create
           </Button>
         </div>
       </form>
