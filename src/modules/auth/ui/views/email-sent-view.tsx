@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import React, { useState } from "react";
+import React from "react";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
 
 export const EmailSentView = () => {
@@ -11,8 +11,12 @@ export const EmailSentView = () => {
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center text-center py-32 gap-4">
               <h1 className="text-2xl font-bold">Check your email</h1>
-              <p className="text-muted-foreground text-sm px-4">Please check your email for a link to reset your password.</p>
-              <p className="text-muted-foreground text-sm px-4">Check your spam folder if you don't see the email.</p>
+              <p className="text-muted-foreground text-sm px-4">
+                Please check your email for a link to reset your password.
+              </p>
+              <p className="text-muted-foreground text-sm px-4">
+                Check your spam folder if you don&apos;t see the email.
+              </p>
             </div>
           </div>
           <div

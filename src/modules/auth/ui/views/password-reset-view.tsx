@@ -48,9 +48,9 @@ export const PasswordResetView = () => {
         redirectTo: `${hostUrl}/password-reset-form`,
       });
 
-      router.push("/email-sent"); 
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      router.push("/email-sent");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setPending(false);
     }
@@ -87,6 +87,11 @@ export const PasswordResetView = () => {
                 <Button type="submit" className="w-full" disabled={pending}>
                   Reset Password
                 </Button>
+                {!!error && (
+                  <p className="text-sm text-destructive text-center">
+                    {error}
+                  </p>
+                )}
                 <div className="text-center text-sm">
                   Remeber you password?{" "}
                   <Link

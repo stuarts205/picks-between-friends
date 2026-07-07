@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { OctagonAlertIcon } from "lucide-react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
 
@@ -38,7 +37,6 @@ export const PasswordResetForm = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [password, setPassword] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
