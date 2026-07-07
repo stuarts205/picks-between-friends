@@ -91,6 +91,8 @@ export const UserForm = ({
   });
 
   const isPending = createUser.isPending || updateUser.isPending;
+  const createIsPending = pending || isPending;
+  const updateIsPending = updateUser.isPending;
 
   const onCreateSubmit = (values: z.infer<typeof usersInsertSchema>) => {
     setPending(true);
@@ -146,7 +148,7 @@ export const UserForm = ({
               <FormItem>
                 <FormLabel>Overall Points</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} disabled={isPending} />
+                  <Input type="number" {...field} disabled={updateIsPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,7 +161,7 @@ export const UserForm = ({
               <FormItem>
                 <FormLabel>Weekly Points</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} disabled={isPending} />
+                  <Input type="number" {...field} disabled={updateIsPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -169,14 +171,14 @@ export const UserForm = ({
             {onCancel && (
               <Button
                 variant="ghost"
-                disabled={isPending}
+                disabled={updateIsPending}
                 type="button"
                 onClick={onCancel}
               >
                 Cancel
               </Button>
             )}
-            <Button disabled={isPending} type="submit">
+            <Button disabled={updateIsPending} type="submit">
               Update
             </Button>
           </div>
@@ -201,7 +203,7 @@ export const UserForm = ({
                 <Input
                   placeholder="e.g. John Doe"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -218,7 +220,7 @@ export const UserForm = ({
                 <Input
                   placeholder="e.g. john.doe@example.com"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -236,7 +238,7 @@ export const UserForm = ({
                   type="password"
                   placeholder="**********"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -254,7 +256,7 @@ export const UserForm = ({
                   type="password"
                   placeholder="**********"
                   {...field}
-                  disabled={isPending}
+                  disabled={createIsPending}
                 />
               </FormControl>
               <FormMessage />
@@ -265,14 +267,14 @@ export const UserForm = ({
           {onCancel && (
             <Button
               variant="ghost"
-              disabled={isPending}
+              disabled={createIsPending}
               type="button"
               onClick={onCancel}
             >
               Cancel
             </Button>
           )}
-          <Button disabled={isPending} type="submit">
+          <Button disabled={createIsPending} type="submit">
             Create
           </Button>
         </div>

@@ -24,6 +24,7 @@ interface UserIdViewProps {
 
 export const UserIdView = ({ userId }: UserIdViewProps) => {
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -88,6 +89,7 @@ export const UserIdView = ({ userId }: UserIdViewProps) => {
     trpc.users.setPassword.mutationOptions({
       onSuccess: () => {
         setNewPassword("");
+        setConfirmPassword("");
         toast.success("Password updated. User has been signed out everywhere.");
       },
       onError: (error) => {
@@ -110,6 +112,11 @@ export const UserIdView = ({ userId }: UserIdViewProps) => {
   const handleSetPassword = async () => {
     if (newPassword.length < 8) {
       toast.error("Password must be at least 8 characters.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match.");
       return;
     }
 
@@ -173,14 +180,14 @@ export const UserIdView = ({ userId }: UserIdViewProps) => {
             </Badge>
 
             {sessionUser.role === 1 && (
-              <div className="w-full md:max-w-5xl grid grid-cols-1 md:grid-cols-2 items-stretch gap-4">
-                <div className="rounded-md border p-4 flex flex-col gap-y-3 h-full">
+              <div className="flex items-start gap-4">
+                <div className="rounded-md border p-4 flex flex-col gap-y-3 h-full w-[22rem]">
                   <p className="font-medium">Points</p>
                   <p className="text-sm text-muted-foreground">
-                    Update overall and weekly points directly.
+                    Update overall and weekly points.
                   </p>
-                  <div className="flex flex-col md:flex-row md:items-end gap-2">
-                    <div className="w-full md:flex-1">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex-1">
                       <Input
                         type="number"
                         value={overAllPoints}
@@ -190,7 +197,7 @@ export const UserIdView = ({ userId }: UserIdViewProps) => {
                         className="w-full"
                       />
                     </div>
-                    <div className="w-full md:flex-1">
+                    <div className="flex-1">
                       <Input
                         type="number"
                         value={weeklyPoints}
@@ -200,7 +207,7 @@ export const UserIdView = ({ userId }: UserIdViewProps) => {
                         className="w-full"
                       />
                     </div>
-                    <div className="w-full md:flex-1">
+                    <div className="flex-1">
                       <Button
                         type="button"
                         onClick={handleUpdatePoints}
@@ -213,13 +220,13 @@ export const UserIdView = ({ userId }: UserIdViewProps) => {
                   </div>
                 </div>
 
-                <div className="rounded-md border p-4 flex flex-col gap-y-3 h-full">
+                <div className="rounded-md border p-4 flex flex-col gap-y-3 h-full w-[22rem]">
                   <p className="font-medium">Security</p>
                   <p className="text-sm text-muted-foreground">
                     Set a password.
                   </p>
-                  <div className="flex flex-col md:flex-row md:items-end gap-2">
-                    <div className="w-full md:flex-1">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex-1">
                       <Input
                         type="password"
                         value={newPassword}
@@ -229,7 +236,17 @@ export const UserIdView = ({ userId }: UserIdViewProps) => {
                         className="w-full"
                       />
                     </div>
-                    <div className="w-full md:flex-1">
+                    <div className="flex-1">
+                      <Input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm new password"
+                        disabled={setPassword.isPending}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="flex-1">
                       <Button
                         type="button"
                         onClick={handleSetPassword}
