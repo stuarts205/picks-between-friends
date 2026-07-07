@@ -71,7 +71,10 @@ export function getGameScores(gameId: string, league: string, id: string) {
     });
 }
 
-export async function getTeamById(coveringTeamId: string | null, league: string) {
+export async function getTeamById(
+  coveringTeamId: string | null,
+  league: string,
+) {
   if (!coveringTeamId) return null;
   const repsonse = await fetch(
     `https://site.api.espn.com/apis/site/v2/sports/football/${league}/teams/${coveringTeamId}`,
@@ -105,25 +108,25 @@ export const getGames = async (season: SeasonGetOne) => {
   const endDate = formatDateYYYYMMDD(endDateDate);
 
   for (const league of leagueMap) {
-    debugger;
     const response = await fetch(
       `https://site.api.espn.com/apis/site/v2/sports/football/${league}/scoreboard?dates=${startDate}-${endDate}`,
     );
     const data = await response.json();
     if (response.ok) {
       const gamesWithLeague = data.events.map((game: GameGetOne) => ({
-          ...game,
-          league: league,
-        }));
-      if (league === "college-football") {        
+        ...game,
+        league: league,
+      }));
+      if (league === "college-football") {
         const filteredGames = [...collegeGames, ...gamesWithLeague].filter(
-        (game) =>
-          powerFiveId.includes(
-            game.competitions[0].competitors[0].team.conferenceId ||
-              game.competitions[0].competitors[1].team.conferenceId
-          )
-      );
-      collegeGames = filteredGames;
+          (game) =>
+            powerFiveId.includes(
+              game.competitions[0].competitors[0].team.conferenceId ||
+                game.competitions[0].competitors[1].team.conferenceId ||
+                "",
+            ),
+        );
+        collegeGames = filteredGames;
       } else if (league === "nfl") {
         nflGames = [...nflGames, ...gamesWithLeague];
       }
