@@ -43,8 +43,6 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
     })
   );
 
-  console.log({ college, nfl });
-
   const pickMutation = useMutation(
     trpc.picks.createPick.mutationOptions({
       onSuccess: async (_, variables) => {
