@@ -17,7 +17,6 @@ import {
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
 
@@ -124,15 +123,6 @@ export const PasswordResetForm = () => {
                 <Button type="submit" className="w-full" disabled={pending}>
                   Reset Password
                 </Button>
-                <div className="text-center text-sm">
-                  Already have an account?{" "}
-                  <Link
-                    href="/sign-in"
-                    className="underline underline-offset-4"
-                  >
-                    Sign In
-                  </Link>
-                </div>
               </div>
             </form>
           </Form>

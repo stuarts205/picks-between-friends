@@ -142,7 +142,7 @@ export const gamesRouter = createTRPCRouter({
               league: gameInput.league,
               home: isNFL ? homeTeam.nickname : homeTeam.name,
               away: isNFL ? awayTeam.nickname : awayTeam.name,
-              spread: gameInput.spread,
+              spread: gameInput.spread || "0",
               homeId: homeTeam.id,
               awayId: awayTeam.id,
               favoriteSlug: gameInput.spread.includes('-') ? homeTeam.slug || "" : awayTeam.slug || "",
