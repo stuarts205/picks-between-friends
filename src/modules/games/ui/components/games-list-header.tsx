@@ -60,8 +60,14 @@ export const GamesListHeader = () => {
       gameId: game.competitions[0].id,
       week: season?.week || 1,
       league: game.league,
-      home: game.competitions[0].competitors[0].team.shortDisplayName,
-      away: game.competitions[0].competitors[1].team.shortDisplayName,
+      home:
+        game.competitions[0].competitors[0]?.team.location ??
+        game.competitions[0].competitors[0]?.team.shortDisplayName ??
+        "",
+      away:
+        game.competitions[0].competitors[1]?.team.location ??
+        game.competitions[0].competitors[1]?.team.shortDisplayName ??
+        "",
       spread: game.competitions[0].odds?.[0]?.spread
         ? game.competitions[0].odds[0].spread.toString()
         : "0",

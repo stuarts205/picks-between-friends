@@ -12,6 +12,7 @@ export const leagueMap = ["college-football", "nfl"];
 
 type EspnCompetitor = {
   team: {
+    location?: string;
     shortDisplayName: string;
     conferenceId?: string;
   };
@@ -143,12 +144,17 @@ export const getGames = async (season: SeasonGetOne) => {
       );
       if (league === "college-football") {
         const filteredGames = [...collegeGames, ...gamesWithLeague].filter(
-          (game) =>
-            powerFiveId.includes(
-              game.competitions[0].competitors[0].team.conferenceId ||
-                game.competitions[0].competitors[1].team.conferenceId ||
-                "",
-            ),
+          (game) => {
+            const homeConferenceId =
+              game.competitions[0].competitors[0]?.team.conferenceId;
+            const awayConferenceId =
+              game.competitions[0].competitors[1]?.team.conferenceId;
+
+            return (
+              powerFiveId.includes(String(homeConferenceId ?? "")) ||
+              powerFiveId.includes(String(awayConferenceId ?? ""))
+            );
+          },
         );
         collegeGames = filteredGames;
       } else if (league === "nfl") {

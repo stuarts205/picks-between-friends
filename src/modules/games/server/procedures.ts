@@ -102,6 +102,7 @@ export const gamesRouter = createTRPCRouter({
       async ({ input }: { input: z.infer<typeof gamesInsertManySchema> }) => {
         const createdGames = [];
         for (const gameInput of input) {
+          console.log("Processing game:", gameInput);
           const isNFL = gameInput.league.toLowerCase().includes("nfl");
 
           const [homeTeam] = await db
