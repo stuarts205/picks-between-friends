@@ -28,15 +28,7 @@ export default function RootLayout({
   return (
     <NuqsAdapter>
       <TRPCReactProvider>
-        <html lang="en">
-          <head>
-            <script
-              defer
-              data-website-id="d6e64d2e-11c9-4f73-a6e8-4085c84d4be0"
-              data-domain="https://picks-between-friends.vercel.app"
-              src="https://web-track-seven.vercel.app/analytics.js">
-            </script>
-          </head>          
+        <html lang="en">          
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
