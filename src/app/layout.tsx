@@ -36,8 +36,7 @@ export default function RootLayout({
               data-domain="https://picks-between-friends.vercel.app"
               src="https://web-track-seven.vercel.app/analytics.js">
             </script>
-          </head>
-          
+          </head>          
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
