@@ -12,7 +12,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { season } from "@/db/schema"; 
+import { season } from "@/db/schema";
+import { SeasonGetOne } from "@/modules/season/type";
 
 const Page = async () => {
   const session = await auth.api.getSession({
@@ -24,7 +25,7 @@ const Page = async () => {
   }
 
   const queryClient = getQueryClient();
-  const currentSeason =  (await db.select().from(season).limit(1))[0];
+  const currentSeason = (await db.select().from(season).limit(1))[0] as SeasonGetOne;
   void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: "college-football"}));
   void queryClient.prefetchQuery(trpc.games.getMany.queryOptions({week: currentSeason?.week, league: "nfl"}));
 

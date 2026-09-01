@@ -16,6 +16,7 @@ import {
   SquareCheckIcon,
   Target,
   User2Icon,
+  ChartNoAxesCombined
 } from "lucide-react";
 import Link from "next/link";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
@@ -38,6 +39,11 @@ const firstSection = [
     icon: Target,
     label: "Picks",
     href: "/picks",
+  },
+  {
+    icon: ChartNoAxesCombined,
+    label: "Analytics",
+    href: "/analytics",
   },
 ];
 
