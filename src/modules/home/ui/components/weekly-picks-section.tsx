@@ -9,6 +9,12 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { getGameStatus } from "@/lib/utils";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface WeeklyPicksSectionProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,66 +107,84 @@ export const WeeklyPicksSection = ({
         className="flex flex-col items-center p-3 md:p-5 w-full"
       >
         <div className="flex justify-between items-center gap-5 w-full">
-          <div
-            className="relative w-8 h-8 md:w-[45px] md:h-[45px]"
-            onClick={() =>
-              g.awayTeam?.id
-                ? handlePick(g.gameid, g.id, league, g.awayTeam.id)
-                : null
-            }
-          >
-            {g.awayTeam?.logo ? (
-              <Image
-                src={g.awayTeam.logo}
-                alt={g.awayTeam?.name || "Away team"}
-                fill
-                className="object-contain cursor-pointer"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
-                N/A
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className="relative w-8 h-8 md:w-[45px] md:h-[45px]"
+                onClick={() =>
+                  g.awayTeam?.id
+                    ? handlePick(g.gameid, g.id, league, g.awayTeam.id)
+                    : null
+                }
+              >
+                {g.awayTeam?.logo ? (
+                  <Image
+                    src={g.awayTeam.logo}
+                    alt={g.awayTeam?.name || "Away team"}
+                    fill
+                    className="object-contain cursor-pointer"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
+                    N/A
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </TooltipTrigger>
+            <TooltipContent>{g.awayTeam?.name ?? "Away team"}</TooltipContent>
+          </Tooltip>
+
           <div className="text-muted-foreground text-sm md:text-lg">@</div>
-          <div
-            className="relative w-8 h-8 md:w-[45px] md:h-[45px]"
-            onClick={() =>
-              g.homeTeam?.id
-                ? handlePick(g.gameid, g.id, league, g.homeTeam.id)
-                : null
-            }
-          >
-            {g.homeTeam?.logo ? (
-              <Image
-                src={g.homeTeam.logo}
-                alt={g.homeTeam?.name || "Home team"}
-                fill
-                className="object-contain cursor-pointer"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
-                N/A
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className="relative w-8 h-8 md:w-[45px] md:h-[45px]"
+                onClick={() =>
+                  g.homeTeam?.id
+                    ? handlePick(g.gameid, g.id, league, g.homeTeam.id)
+                    : null
+                }
+              >
+                {g.homeTeam?.logo ? (
+                  <Image
+                    src={g.homeTeam.logo}
+                    alt={g.homeTeam?.name || "Home team"}
+                    fill
+                    className="object-contain cursor-pointer"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
+                    N/A
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </TooltipTrigger>
+            <TooltipContent>{g.homeTeam?.name ?? "Home team"}</TooltipContent>
+          </Tooltip>
           <div className="text-muted-foreground text-sm md:text-lg">
             {g.spread}
           </div>
-          <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
-            {g.pickedTeam?.logo ? (
-              <Image
-                src={g.pickedTeam.logo}
-                alt={g.pickedTeam.name || "Picked team"}
-                fill
-                className="object-contain"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
-                No pick
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="relative w-8 h-8 md:w-[45px] md:h-[45px]">
+                {g.pickedTeam?.logo ? (
+                  <Image
+                    src={g.pickedTeam.logo}
+                    alt={g.pickedTeam.name || "Picked team"}
+                    fill
+                    className="object-contain"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[10px] md:text-xs text-muted-foreground">
+                    No pick
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {g.pickedTeam?.name ?? "No pick yet"}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     );
@@ -178,35 +202,39 @@ export const WeeklyPicksSection = ({
           You cannot make or change picks for games that have already started.
         </p>
       </ResponsiveDialog>
-      <div className="flex flex-col items-start p-4 rounded-lg border gap-3">
-        <h2 className="text-md text-muted-foreground">
-          This week&apos;s picks
-        </h2>
-        <div className="w-full flex flex-col md:flex-row justify-between items-start gap-3">
-          <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border w-full md:w-1/2 gap-3">
-            <p className="text-muted-foreground">College</p>
-            <div className="w-full p-3 space-y-4">
-              {college.items.length === 0 ? (
-                <p className="text-muted-foreground">
-                  You haven&apos;t made any picks yet
-                </p>
-              ) : null}
-              {college.items.map((g) => renderGameCard(g, "college-football"))}
+      <TooltipProvider>
+        <div className="flex flex-col items-start p-4 rounded-lg border gap-3">
+          <h2 className="text-md text-muted-foreground">
+            This week&apos;s picks
+          </h2>
+          <div className="w-full flex flex-col md:flex-row justify-between items-start gap-3">
+            <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border w-full md:w-1/2 gap-3">
+              <p className="text-muted-foreground">College</p>
+              <div className="w-full p-3 space-y-4">
+                {college.items.length === 0 ? (
+                  <p className="text-muted-foreground">
+                    You haven&apos;t made any picks yet
+                  </p>
+                ) : null}
+                {college.items.map((g) =>
+                  renderGameCard(g, "college-football"),
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col items-start p-4 rounded-lg border w-full md:w-1/2 gap-3">
-            <p className="text-muted-foreground">NFL</p>
-            <div className="w-full p-3 space-y-4">
-              {nfl.items.length === 0 ? (
-                <p className="text-muted-foreground">
-                  You haven&apos;t made any picks yet
-                </p>
-              ) : null}
-              {nfl.items.map((g) => renderGameCard(g, "nfl"))}
+            <div className="flex flex-col items-start p-4 rounded-lg border w-full md:w-1/2 gap-3">
+              <p className="text-muted-foreground">NFL</p>
+              <div className="w-full p-3 space-y-4">
+                {nfl.items.length === 0 ? (
+                  <p className="text-muted-foreground">
+                    You haven&apos;t made any picks yet
+                  </p>
+                ) : null}
+                {nfl.items.map((g) => renderGameCard(g, "nfl"))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </TooltipProvider>
     </>
   );
 };

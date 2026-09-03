@@ -30,12 +30,15 @@ const Page = async () => {
   void queryClient.prefetchQuery(
     trpc.analytics.getManyForOverall.queryOptions(),
   );
+  void queryClient.prefetchQuery(
+    trpc.analytics.getWeeklyPointsForUser.queryOptions(),
+  );
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<AnalyticsViewLoading />}>
         <ErrorBoundary fallback={<AnalyticsViewError />}>
-          <AnalyticsView currentSeason={currentSeason} />
+          <AnalyticsView currentSeason={currentSeason} user={session?.user} />
         </ErrorBoundary>
       </Suspense>
     </HydrationBoundary>

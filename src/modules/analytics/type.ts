@@ -4,6 +4,9 @@ import type { AppRouter } from "@/trpc/routers/_app";
 export type PicksGetMany =
   inferRouterOutputs<AppRouter>["analytics"]["getManyForOverall"];
 
+export type UserWeeklyPoints =
+  inferRouterOutputs<AppRouter>["analytics"]["getWeeklyPointsForUser"];
+
 export type AnalyticsCompetitor = {
   id: string;
   name: string;
@@ -14,6 +17,16 @@ export type AnalyticsCompetitor = {
     record: string;
   } | null;
 };
+
+export const mockUserWeeklyPoints: UserWeeklyPoints = [
+  { week: 1, points: 6 },
+  { week: 2, points: 8 },
+  { week: 3, points: 4 },
+  { week: 4, points: 9 },
+  { week: 5, points: 5 },
+  { week: 6, points: 7 },
+  { week: 7, points: 3 },
+];
 
 export const mockAnalyticsCompetitors: AnalyticsCompetitor[] = [
   {
