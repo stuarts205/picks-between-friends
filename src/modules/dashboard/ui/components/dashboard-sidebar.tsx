@@ -42,7 +42,7 @@ const firstSection = [
   },
   {
     icon: ChartNoAxesCombined,
-    label: "Analytics",
+    label: "Stats",
     href: "/analytics",
   },
 ];
