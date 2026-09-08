@@ -15,12 +15,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SeasonGetOne } from "@/modules/season/type";
 
 interface WeeklyPicksSectionProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   session: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  currentSeason: any;
+  currentSeason: SeasonGetOne;
 }
 
 export const WeeklyPicksSection = ({

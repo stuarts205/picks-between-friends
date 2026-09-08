@@ -73,6 +73,7 @@ export const UserRecordStatsTable = () => {
 
     return {
       ...competitor,
+      totalWins,
       record: `${totalWins}-${totalLosses}`,
       winPercentage: decidedPicks ? (totalWins / decidedPicks) * 100 : 0,
       bestWeek: bestWeek && {
@@ -80,7 +81,7 @@ export const UserRecordStatsTable = () => {
         record: `${bestWeek.wins}-${bestWeek.losses}`,
       },
     };
-  });
+  }).sort((a, b) => b.totalWins - a.totalWins);
 
   //const data = mockAnalyticsCompetitors;
 

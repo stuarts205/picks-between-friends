@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { game, team } from "@/db/schema";
+import { game, team, season } from "@/db/schema";
 import { baseProcedure, createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import z from "zod";
 import { eq, getTableColumns, and } from "drizzle-orm";
@@ -10,8 +10,22 @@ import {
   gamesUpdateSchema,
   gamesUpdateWinnerSchema,
 } from "../schemas";
+import { createGames } from "./create-games";
+import { loadGamesForSeason } from "./load-games";
 
 export const gamesRouter = createTRPCRouter({
+  loadForCurrentWeek: protectedProcedure.mutation(async () => {
+    const [currentSeason] = await db.select().from(season).limit(1);
+
+    if (!currentSeason) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Current season not found",
+      });
+    }
+
+    return loadGamesForSeason(currentSeason);
+  }),
   selectGame: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
@@ -100,61 +114,7 @@ export const gamesRouter = createTRPCRouter({
     .input(gamesInsertManySchema)
     .mutation(
       async ({ input }: { input: z.infer<typeof gamesInsertManySchema> }) => {
-        const createdGames = [];
-        for (const gameInput of input) {
-          console.log("Processing game:", gameInput);
-          const isNFL = gameInput.league.toLowerCase().includes("nfl");
-
-          const [homeTeam] = await db
-            .select()
-            .from(team)
-            .where(
-              and(
-                eq(isNFL ? team.nickname : team.name, gameInput.home),
-                eq(team.league, isNFL ? "NFL" : "College")
-              )
-            )
-            .limit(1);
-
-          const [awayTeam] = await db
-            .select()
-            .from(team)
-            .where(
-              and(
-                eq(isNFL ? team.nickname : team.name, gameInput.away),
-                eq(team.league, isNFL ? "NFL" : "College")
-              )
-            )
-            .limit(1);
-
-          if (!homeTeam || !awayTeam) {
-            continue;
-          }
-
-          if (gameInput.spread === "0" || gameInput.spread === "") {
-            continue;
-          }
-
-          const [createdGame] = await db
-            .insert(game)
-            .values({
-              id: crypto.randomUUID(),
-              week: gameInput.week,
-              league: gameInput.league,
-              home: isNFL ? homeTeam.nickname : homeTeam.name,
-              away: isNFL ? awayTeam.nickname : awayTeam.name,
-              spread: gameInput.spread || "0",
-              homeId: homeTeam.id,
-              awayId: awayTeam.id,
-              favoriteSlug: gameInput.spread.includes('-') ? homeTeam.slug || "" : awayTeam.slug || "",
-              favorite: gameInput.favorite,
-              gameid: gameInput.gameId,
-            })
-            .returning();
-
-          createdGames.push(createdGame);
-        }
-        return createdGames;
+        return createGames(input);
       }
     ),
   update: protectedProcedure

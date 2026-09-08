@@ -103,6 +103,7 @@ export const game = pgTable("game", {
   selected: boolean("selected"),
   winner: text("winner"),
   favoriteWin: boolean("favorite_win"),
+  push: boolean("push"),
 });
 
 export const season = pgTable("season", {
