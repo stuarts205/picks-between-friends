@@ -1,9 +1,34 @@
 import { db } from "@/db";
-import { game, pick, team } from "@/db/schema";
+import { game, pick, team, user } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import z from "zod";
 import { eq, getTableColumns, and } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
+
+// Once the user has a pick on every selected game for the week, mark them
+// as having completed that week's picks.
+async function markWeekCompleteIfAllPicked(userId: string, week: number) {
+  const selectedGamesForWeek = await db
+    .select({ id: game.id })
+    .from(game)
+    .where(and(eq(game.week, week), eq(game.selected, true)));
+
+  if (selectedGamesForWeek.length === 0) return;
+
+  const userPicksForWeek = await db
+    .select({ gameId: pick.gameId })
+    .from(pick)
+    .where(and(eq(pick.userId, userId), eq(pick.week, week)));
+
+  const pickedGameIds = new Set(userPicksForWeek.map((p) => p.gameId));
+  const hasPickedEveryGame = selectedGamesForWeek.every((g) =>
+    pickedGameIds.has(g.id)
+  );
+
+  if (hasPickedEveryGame) {
+    await db.update(user).set({ week }).where(eq(user.id, userId));
+  }
+}
 
 export const picksRouter = createTRPCRouter({
   createPick: protectedProcedure
@@ -47,6 +72,9 @@ export const picksRouter = createTRPCRouter({
           .set({ teamId: teamId, teamSlug: pickSlug?.slug || "" })
           .where(eq(pick.id, existingPick.id))
           .returning();
+
+        await markWeekCompleteIfAllPicked(session.user.id, week);
+
         return updatedPick;
       }
 
@@ -62,6 +90,8 @@ export const picksRouter = createTRPCRouter({
           week: week,
         })
         .returning();
+
+      await markWeekCompleteIfAllPicked(session.user.id, week);
 
       return newPick;
     }),

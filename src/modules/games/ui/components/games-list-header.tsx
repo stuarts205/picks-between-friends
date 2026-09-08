@@ -11,9 +11,6 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { getGames } from "@/lib/utils";
-import { gamesInsertSchema } from "../../schemas";
-import z from "zod";
 
 export const GamesListHeader = () => {
   const trpc = useTRPC();
@@ -25,60 +22,29 @@ export const GamesListHeader = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
 
-  const createGames = useMutation(
-    trpc.games.createMany.mutationOptions({
-      onSuccess: async () => {
+  const loadGamesMutation = useMutation(
+    trpc.games.loadForCurrentWeek.mutationOptions({
+      onSuccess: async (createdGames) => {
         await queryClient.invalidateQueries(
           trpc.games.getMany.queryOptions({ week: season?.week }),
         );
-        toast.success("Games loaded successfully");
+        if (createdGames.length === 0) {
+          toast.error("No games found for this week");
+        } else {
+          toast.success("Games loaded successfully");
+        }
         setIsLoading(false);
       },
       onError: (error) => {
-        toast.error(`Error creating game: ${error.message}`);
+        toast.error(`Error loading games: ${error.message}`);
+        setIsLoading(false);
       },
     }),
   );
 
-  type GameInput = z.infer<typeof gamesInsertSchema>;
-
-  const loadGames = async () => {
+  const loadGames = () => {
     setIsLoading(true);
-    if (!season) {
-      toast.error("Season data is not available yet");
-      setIsLoading(false);
-      return;
-    }
-    const games = await getGames(season);
-    if (games.length === 0) {
-      toast.error("No games found for this week");
-      setIsLoading(false);
-      return;
-    }
-
-    const formattedGames: GameInput[] = games.map((game) => ({
-      gameId: game.competitions[0].id,
-      week: season?.week || 1,
-      league: game.league,
-      home:
-        game.competitions[0].competitors[0]?.team.location ??
-        game.competitions[0].competitors[0]?.team.shortDisplayName ??
-        "",
-      away:
-        game.competitions[0].competitors[1]?.team.location ??
-        game.competitions[0].competitors[1]?.team.shortDisplayName ??
-        "",
-      spread: game.competitions[0].odds?.[0]?.spread
-        ? game.competitions[0].odds[0].spread.toString()
-        : "0",
-      favorite: game.competitions[0].odds?.[0]?.details
-        ? game.competitions[0].odds[0].details.split(" ")[0]
-        : "N/A",
-    }));
-
-    createGames.mutate(
-      formattedGames as unknown as z.infer<typeof gamesInsertSchema>[],
-    );
+    loadGamesMutation.mutate();
   };
 
   return (
