@@ -137,6 +137,7 @@ export const picksRouter = createTRPCRouter({
           userPick: {
             id: userPick.id,
             teamId: userPick.teamId,
+            win: userPick.win,
           },
           pickedTeam: {
             id: pickedTeam.id,
