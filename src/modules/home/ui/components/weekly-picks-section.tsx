@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { SeasonGetOne } from "@/modules/season/type";
+import { CheckIcon, CircleIcon } from "lucide-react";
 
 interface WeeklyPicksSectionProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -133,7 +134,6 @@ export const WeeklyPicksSection = ({
             </TooltipTrigger>
             <TooltipContent>{g.awayTeam?.name ?? "Away team"}</TooltipContent>
           </Tooltip>
-
           <div className="text-muted-foreground text-sm md:text-lg">@</div>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -185,10 +185,24 @@ export const WeeklyPicksSection = ({
               {g.pickedTeam?.name ?? "No pick yet"}
             </TooltipContent>
           </Tooltip>
+          
+          <div>
+            {g.userPick?.win === true && (
+              <div className="relative w-5 h-5 md:w-6 md:h-6">
+                <CircleIcon className="w-full h-full fill-green-500 text-green-500" />
+                <CheckIcon
+                  className="absolute inset-0 m-auto w-3 h-3 md:w-3.5 md:h-3.5 text-white"
+                  strokeWidth={3}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
   };
+
+  console.log(college, nfl);
 
   return (
     <>
