@@ -81,6 +81,7 @@ export const team = pgTable("team", {
   abbreviation: text("abbreviation"),
   conference: text("conference"),
   logo: text("logo"),
+  color: text("color"),
   league: text("league").notNull(),
 });
 
