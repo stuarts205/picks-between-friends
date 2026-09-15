@@ -33,6 +33,9 @@ const Page = async () => {
   void queryClient.prefetchQuery(
     trpc.analytics.getWeeklyPointsForUser.queryOptions(),
   );
+  void queryClient.prefetchQuery(
+    trpc.analytics.getPicksByWeekByUser.queryOptions(),
+  );
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

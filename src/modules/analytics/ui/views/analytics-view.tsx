@@ -5,6 +5,7 @@ import { SeasonGetOne } from "@/modules/season/type";
 import { UserRecordStatsTable } from "../components/user-record-stats-table";
 import { UserWeeklyBarChart } from "../components/user-weekly-bar-chart";
 import { User } from "better-auth";
+import { UserPickResults } from "../components/user-pick-results";
 
 interface AnalyticsViewProps {
   currentSeason: SeasonGetOne;
@@ -19,6 +20,9 @@ export const AnalyticsView = ({ currentSeason, user }: AnalyticsViewProps) => {
       </div>
       <div className="overflow-hidden rounded-md border w-full p-8">
         <UserWeeklyBarChart user={user} />
+      </div>
+      <div className="overflow-hidden rounded-md border w-full p-8">
+        <UserPickResults />
       </div>
     </div>
   );
