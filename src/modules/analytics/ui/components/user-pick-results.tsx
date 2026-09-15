@@ -42,7 +42,10 @@ export const UserPickResults = () => {
           />
         </span>
       ) : null}
-      <span className={isPicked ? "text-foreground" : "text-muted-foreground"}>
+      <span
+        className={isPicked ? "font-semibold" : "text-muted-foreground"}
+        style={isPicked && teamInfo?.color ? { color: teamInfo.color } : undefined}
+      >
         {teamInfo?.abbreviation ?? teamInfo?.name ?? "?"}
       </span>
     </span>
