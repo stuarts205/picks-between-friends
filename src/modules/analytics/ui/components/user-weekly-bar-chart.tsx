@@ -9,7 +9,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useTRPC } from "@/trpc/client";
-import { mockUserWeeklyPoints } from "@/modules/analytics/type";
 import { User } from "better-auth";
 
 interface UserWeeklyBarChartProps {
