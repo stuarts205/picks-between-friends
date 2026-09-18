@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Pie, PieChart } from "recharts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
@@ -16,26 +16,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import {
+  type PlayerColor,
+  playerColors,
+} from "@/modules/analytics/lib/player-colors";
 import { useTRPC } from "@/trpc/client";
 
-// Categorical palette in a fixed order, as CSS variables scoped to the section
-// (light step, then the dark step) so the pie and the list share one source.
-// Players are handed slots in order and never re-colored; anyone past the last
-// slot is folded into a neutral "Other" rather than reusing a color.
-const PLAYER_COLORS = [
-  "[--win-1:#2a78d6] dark:[--win-1:#3987e5]",
-  "[--win-2:#eb6834] dark:[--win-2:#d95926]",
-  "[--win-3:#1baf7a] dark:[--win-3:#199e70]",
-  "[--win-4:#eda100] dark:[--win-4:#c98500]",
-  "[--win-5:#e87ba4] dark:[--win-5:#d55181]",
-  "[--win-6:#008300]",
-  "[--win-7:#4a3aa7] dark:[--win-7:#9085e9]",
-  "[--win-8:#e34948] dark:[--win-8:#e66767]",
-];
-const PALETTE = [...PLAYER_COLORS, "[--win-other:#898781]"].join(" ");
+const paletteCss = (scope: string, colors: PlayerColor[]) => {
+  const vars = (mode: keyof PlayerColor) =>
+    colors.map((color, index) => `--win-${index}:${color[mode]};`).join("");
+  return `[data-win-palette="${scope}"]{${vars("light")}}.dark [data-win-palette="${scope}"]{${vars("dark")}}`;
+};
 
-// Slice colors come from the variables above, so the config carries none.
+// Slice colors come from the palette variables, so the config carries none.
 const chartConfig: ChartConfig = {};
 
 type WinSlice = {
@@ -49,8 +42,12 @@ const winsLabel = (wins: number) => `${wins} ${wins === 1 ? "win" : "wins"}`;
 
 export const WeeklyPlayerPercentage = () => {
   const trpc = useTRPC();
+  const paletteId = useId();
   const { data } = useSuspenseQuery(
     trpc.analytics.getManyForOverall.queryOptions(),
+  );
+  const { data: roster } = useSuspenseQuery(
+    trpc.analytics.getPlayers.queryOptions(),
   );
   const picks = data.items;
 
@@ -69,15 +66,10 @@ export const WeeklyPlayerPercentage = () => {
     );
   });
 
-  // Alphabetical, so a player keeps the same color and slice position in every
-  // week and switching weeks never repaints anyone. The locale is pinned so the
-  // server render and every viewer agree on the order.
-  const players = Array.from(
-    new Map(
-      picks.map((pick) => [pick.userId, pick.userName ?? "Unknown user"]),
-    ),
-    ([id, name]) => ({ id, name }),
-  ).sort(
+  // Everyone who has made a pick, alphabetical, so a player keeps the same color
+  // and slice position in every week and switching weeks never repaints anyone.
+  // The locale is pinned so the server render and every viewer agree on the order.
+  const players = [...roster].sort(
     (a, b) => a.name.localeCompare(b.name, "en") || a.id.localeCompare(b.id, "en"),
   );
 
@@ -85,25 +77,16 @@ export const WeeklyPlayerPercentage = () => {
     (pick) => pick.week === selectedWeek && pick.win === true,
   );
 
-  const slices: WinSlice[] = [];
-  players.forEach((player, index) => {
-    const wins = weekWins.filter((pick) => pick.userId === player.id).length;
-    if (!wins) return;
-
-    const hasColor = index < PLAYER_COLORS.length;
-    const key = hasColor ? player.id : "other";
-    const existing = slices.find((slice) => slice.key === key);
-    if (existing) {
-      existing.wins += wins;
-      return;
-    }
-    slices.push({
-      key,
-      name: hasColor ? player.name : "Other",
-      wins,
-      fill: `var(--win-${hasColor ? index + 1 : "other"})`,
-    });
-  });
+  // Every player owns a color slot, whether or not they won this week, so
+  // colors never shift when the week changes.
+  const slices: WinSlice[] = players
+    .map((player, index) => ({
+      key: player.id,
+      name: player.name,
+      wins: weekWins.filter((pick) => pick.userId === player.id).length,
+      fill: `var(--win-${index})`,
+    }))
+    .filter((slice) => slice.wins > 0);
 
   const percent = (wins: number) =>
     ((wins / weekWins.length) * 100).toFixed(1);
@@ -146,11 +129,14 @@ export const WeeklyPlayerPercentage = () => {
         </p>
       ) : (
         <div
-          className={cn(
-            "flex flex-col items-center gap-6 md:flex-row",
-            PALETTE,
-          )}
+          data-win-palette={paletteId}
+          className="flex flex-col items-center gap-6 md:flex-row"
         >
+          <style
+            dangerouslySetInnerHTML={{
+              __html: paletteCss(paletteId, playerColors(players.length)),
+            }}
+          />
           <ChartContainer
             config={chartConfig}
             role="img"
@@ -188,7 +174,8 @@ export const WeeklyPlayerPercentage = () => {
                 startAngle={90}
                 endAngle={-270}
                 stroke="var(--background)"
-                strokeWidth={2}
+                // a lone slice is a full circle, and its stroke would draw a seam
+                strokeWidth={slices.length > 1 ? 2 : 0}
               />
             </PieChart>
           </ChartContainer>

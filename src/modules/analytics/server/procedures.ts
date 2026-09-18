@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { game, pick, team } from "@/db/schema";
+import { game, pick, team, user } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { eq, getTableColumns } from "drizzle-orm";
+import { eq, exists, getTableColumns } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 export const analyticsRouter = createTRPCRouter({
@@ -54,6 +54,17 @@ export const analyticsRouter = createTRPCRouter({
       const data = await db.select().from(pick);
       return { items: data };
     }),
+  // Players are the accounts that have made at least one pick.
+  getPlayers: protectedProcedure.query(async () => {
+    return db
+      .select({ id: user.id, name: user.name })
+      .from(user)
+      .where(
+        exists(
+          db.select({ id: pick.id }).from(pick).where(eq(pick.userId, user.id)),
+        ),
+      );
+  }),
   getWeeklyPointsForUser: protectedProcedure
     .query(async ({ ctx }) => {
       const userId = ctx.auth.user.id;
