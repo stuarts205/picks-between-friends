@@ -1,4 +1,5 @@
-"use client";
+ "use client";
+import { WeeklyPlayersBarChart } from "../components/weekly-players-bar-chart";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { SeasonGetOne } from "@/modules/season/type";
@@ -6,6 +7,7 @@ import { UserRecordStatsTable } from "../components/user-record-stats-table";
 import { UserWeeklyBarChart } from "../components/user-weekly-bar-chart";
 import { User } from "better-auth";
 import { UserPickResults } from "../components/user-pick-results";
+import { WeeklyPlayerPercentage } from "../components/weekly-player-percentage";
 
 interface AnalyticsViewProps {
   currentSeason: SeasonGetOne;
@@ -19,11 +21,17 @@ export const AnalyticsView = ({ currentSeason, user }: AnalyticsViewProps) => {
         <UserRecordStatsTable />
       </div>
       <div className="overflow-hidden rounded-md border w-full p-8">
+        <WeeklyPlayersBarChart />
+      </div>
+      <div className="overflow-hidden rounded-md border w-full p-8">
+        <WeeklyPlayerPercentage />
+      </div>
+      <div className="overflow-hidden rounded-md border w-full p-8">
         <UserWeeklyBarChart user={user} />
       </div>
       <div className="overflow-hidden rounded-md border w-full p-8">
         <UserPickResults />
-      </div>
+      </div> 
     </div>
   );
 };
