@@ -243,47 +243,59 @@ export const getNflTeams = async () => {
   return await repsonse.json();
 };
 
+// ESPN's scoreboard rejects `start-end` date ranges with a 400 but accepts a
+// single day, so a week is fetched one day at a time. Throws on a bad response
+// so a failed fetch isn't mistaken for "no games this week".
+async function getScoreboardEvents(league: string, date: string) {
+  const response = await fetch(
+    `https://site.web.api.espn.com/apis/site/v2/sports/football/${league}/scoreboard?dates=${date}`,
+  );
+  if (!response.ok) {
+    throw new Error(
+      `ESPN ${league} scoreboard for ${date} failed: ${response.status}`,
+    );
+  }
+  const data = await response.json();
+  return (data.events ?? []) as Omit<EspnGame, "league">[];
+}
+
 export const getGames = async (season: SeasonLike) => {
   let collegeGames: EspnGame[] = [];
   let nflGames: EspnGame[] = [];
 
-  const startDate = formatDateYYYYMMDD(
-    new Date(String(season?.startDate).replace(" ", "T")),
-  );
-  const endDateDate = new Date(season?.startDate);
-  endDateDate.setDate(endDateDate.getDate() + 7);
-  const endDate = formatDateYYYYMMDD(endDateDate);
+  // A week is the start date plus the six days after it (Tuesday-Monday).
+  const weekStart = new Date(String(season?.startDate).replace(" ", "T"));
+  const weekDates = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(weekStart);
+    day.setDate(day.getDate() + i);
+    return formatDateYYYYMMDD(day);
+  });
 
   for (const league of leagueMap) {
-    const response = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/football/${league}/scoreboard?dates=${startDate}-${endDate}`,
+    const eventsByDay = await Promise.all(
+      weekDates.map((date) => getScoreboardEvents(league, date)),
     );
-    const data = await response.json();
-    if (response.ok) {
-      const gamesWithLeague = data.events.map(
-        (game: Omit<EspnGame, "league">) => ({
-          ...game,
-          league: league,
-        }),
-      );
-      if (league === "college-football") {
-        const filteredGames = [...collegeGames, ...gamesWithLeague].filter(
-          (game) => {
-            const homeConferenceId =
-              game.competitions[0].competitors[0]?.team.conferenceId;
-            const awayConferenceId =
-              game.competitions[0].competitors[1]?.team.conferenceId;
+    const gamesWithLeague = eventsByDay
+      .flat()
+      .map((game) => ({ ...game, league: league }));
 
-            return (
-              powerFiveId.includes(String(homeConferenceId ?? "")) ||
-              powerFiveId.includes(String(awayConferenceId ?? ""))
-            );
-          },
-        );
-        collegeGames = filteredGames;
-      } else if (league === "nfl") {
-        nflGames = [...nflGames, ...gamesWithLeague];
-      }
+    if (league === "college-football") {
+      const filteredGames = [...collegeGames, ...gamesWithLeague].filter(
+        (game) => {
+          const homeConferenceId =
+            game.competitions[0].competitors[0]?.team.conferenceId;
+          const awayConferenceId =
+            game.competitions[0].competitors[1]?.team.conferenceId;
+
+          return (
+            powerFiveId.includes(String(homeConferenceId ?? "")) ||
+            powerFiveId.includes(String(awayConferenceId ?? ""))
+          );
+        },
+      );
+      collegeGames = filteredGames;
+    } else if (league === "nfl") {
+      nflGames = [...nflGames, ...gamesWithLeague];
     }
   }
 
