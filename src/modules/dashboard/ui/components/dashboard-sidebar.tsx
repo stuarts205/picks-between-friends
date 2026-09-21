@@ -13,7 +13,6 @@ import {
 import {
   CheckCircleIcon,
   Home,
-  SquareCheckIcon,
   Target,
   User2Icon,
   ChartNoAxesCombined
@@ -52,11 +51,6 @@ const adminSection = [
     icon: CheckCircleIcon,
     label: "Games",
     href: "/games",
-  },
-  {
-    icon: SquareCheckIcon,
-    label: "Results",
-    href: "/results",
   },
   {
     icon: User2Icon,
