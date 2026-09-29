@@ -84,7 +84,6 @@ export const CommentsButton = () => {
           <DrawerContent className="max-h-[80vh]">
             <DrawerHeader>
               <DrawerTitle>{TITLE}</DrawerTitle>
-              <DrawerDescription>{DESCRIPTION}</DrawerDescription>
             </DrawerHeader>
             {body}
           </DrawerContent>
@@ -94,7 +93,6 @@ export const CommentsButton = () => {
           <SheetContent side="right" className="flex flex-col">
             <SheetHeader>
               <SheetTitle>{TITLE}</SheetTitle>
-              <SheetDescription>{DESCRIPTION}</SheetDescription>
             </SheetHeader>
             {body}
           </SheetContent>
