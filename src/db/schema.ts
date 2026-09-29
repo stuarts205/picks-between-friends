@@ -130,3 +130,18 @@ export const pick = pgTable("pick", {
   userName: text("user_name"),
   week: integer("week").notNull(),
 });
+
+export const comment = pgTable("comment", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id),
+  userName: text("user_name"),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+  updatedAt: timestamp("updated_at").$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+});
