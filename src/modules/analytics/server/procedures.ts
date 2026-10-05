@@ -54,6 +54,35 @@ export const analyticsRouter = createTRPCRouter({
       const data = await db.select().from(pick);
       return { items: data };
     }),
+  // Every team that appears in a game the admin selected for picking.
+  getSelectedTeams: protectedProcedure.query(async () => {
+    const homeTeam = alias(team, "homeTeam");
+    const awayTeam = alias(team, "awayTeam");
+
+    const selectedGames = await db
+      .select({
+        league: game.league,
+        home: { id: homeTeam.id, name: homeTeam.name, logo: homeTeam.logo },
+        away: { id: awayTeam.id, name: awayTeam.name, logo: awayTeam.logo },
+      })
+      .from(game)
+      .innerJoin(homeTeam, eq(game.homeId, homeTeam.id))
+      .innerJoin(awayTeam, eq(game.awayId, awayTeam.id))
+      .where(eq(game.selected, true));
+
+    const teams = new Map<
+      string,
+      (typeof selectedGames)[number]["home"] & { league: string }
+    >();
+    selectedGames.forEach(({ league, home, away }) => {
+      teams.set(home.id, { ...home, league });
+      teams.set(away.id, { ...away, league });
+    });
+
+    return Array.from(teams.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }),
   // Players are the accounts that have made at least one pick.
   getPlayers: protectedProcedure.query(async () => {
     return db
