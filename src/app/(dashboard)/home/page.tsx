@@ -38,6 +38,7 @@ const Page = async () => {
         selected: true,
       })
     );
+  void queryClient.prefetchQuery(trpc.analytics.getWeeklyPointsForUser.queryOptions());
   void queryClient.prefetchQuery(trpc.users.getOverallStandings.queryOptions());
   void queryClient.prefetchQuery(trpc.users.getWeeklyStandings.queryOptions({ week: currentSeason.week }));
   

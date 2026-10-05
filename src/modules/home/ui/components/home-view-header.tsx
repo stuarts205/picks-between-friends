@@ -1,7 +1,9 @@
 "use client";
 import { SeasonGetOne } from "@/modules/season/type";
 import { UserGetOne } from "@/modules/users/types";
-import React, { useEffect, useState } from "react";
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import React from "react";
 
 interface HomeViewHeaderProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,6 +19,15 @@ export const HomeViewHeader = ({
   user,
 }: HomeViewHeaderProps) => {
   const firstName = session?.user?.name?.trim()?.split(/\s+/)[0] || "there";
+  const trpc = useTRPC();
+
+  const { data: weeklyPoints } = useSuspenseQuery(
+    trpc.analytics.getWeeklyPointsForUser.queryOptions(),
+  );
+
+  // The season table holds the current week, so "last week" is the week before.
+  const lastWeekPoints =
+    weeklyPoints.find((w) => w.week === currentSeason.week - 1)?.points ?? 0;
 
   return (
     <>
@@ -32,7 +43,7 @@ export const HomeViewHeader = ({
               <h2 className="text-lg md:text-2xl font-medium">
                 Last Week’s Points
               </h2>
-              <p className="text-2xl font-medium">{user?.weeklyPoints || 0}</p>
+              <p className="text-2xl font-medium">{lastWeekPoints}</p>
             </div>
           </div>
         </div>

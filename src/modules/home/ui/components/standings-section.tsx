@@ -47,7 +47,7 @@ export const StandingsSection = ({ currentSeason }: StandingsSectionProps) => {
         </div>
         <div className="flex flex-col items-start p-2 md:p-4 rounded-lg border gap-3 md:w-1/2 w-full">
           <h2 className="text-md text-muted-foreground">
-            Week {currentSeason.week - 1} results
+            Week {currentSeason.week} results
           </h2>
           <div className="w-full p-3 space-y-4">
             {weeklyStandings.items.length === 0 ? (
