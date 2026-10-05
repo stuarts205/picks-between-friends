@@ -83,6 +83,78 @@ export const analyticsRouter = createTRPCRouter({
       a.name.localeCompare(b.name),
     );
   }),
+  // Overall spread record for every team in a game the admin selected. A team
+  // wins a graded game when it covered the spread; failing to cover and a push
+  // both count as a loss. Games that haven't been graded yet are skipped, so a
+  // team with no graded games comes back 0-0.
+  getTeamRecords: protectedProcedure.query(async () => {
+    const homeTeam = alias(team, "homeTeam");
+    const awayTeam = alias(team, "awayTeam");
+
+    const selectedGames = await db
+      .select({
+        league: game.league,
+        winner: game.winner,
+        push: game.push,
+        home: {
+          id: homeTeam.id,
+          name: homeTeam.name,
+          slug: homeTeam.slug,
+          logo: homeTeam.logo,
+        },
+        away: {
+          id: awayTeam.id,
+          name: awayTeam.name,
+          slug: awayTeam.slug,
+          logo: awayTeam.logo,
+        },
+      })
+      .from(game)
+      .innerJoin(homeTeam, eq(game.homeId, homeTeam.id))
+      .innerJoin(awayTeam, eq(game.awayId, awayTeam.id))
+      .where(eq(game.selected, true));
+
+    const records = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        logo: string | null;
+        league: string;
+        wins: number;
+        losses: number;
+      }
+    >();
+    selectedGames.forEach(({ league, winner, push, home, away }) => {
+      // Same "graded" test the grader uses: a covering team or a push.
+      const graded = push === true || winner !== null;
+
+      [home, away].forEach((t) => {
+        const record = records.get(t.id) ?? {
+          id: t.id,
+          name: t.name,
+          logo: t.logo,
+          league,
+          wins: 0,
+          losses: 0,
+        };
+
+        if (graded) {
+          if (push !== true && t.slug !== null && t.slug === winner) {
+            record.wins += 1;
+          } else {
+            record.losses += 1;
+          }
+        }
+
+        records.set(t.id, record);
+      });
+    });
+
+    return Array.from(records.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }),
   // Players are the accounts that have made at least one pick.
   getPlayers: protectedProcedure.query(async () => {
     return db

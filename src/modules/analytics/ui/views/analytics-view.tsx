@@ -1,5 +1,6 @@
  "use client";
 import { WeeklyPlayersBarChart } from "../components/weekly-players-bar-chart";
+import { TeamRecords } from "../components/team-records";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { SeasonGetOne } from "@/modules/season/type";
@@ -35,6 +36,9 @@ export const AnalyticsView = ({ currentSeason, user }: AnalyticsViewProps) => {
       </div>
       <div className="overflow-hidden rounded-md border w-full p-8">
         <PickedTeamStats />
+      </div>
+      <div className="overflow-hidden rounded-md border w-full p-8">
+        <TeamRecords />
       </div>
     </div>
   );

@@ -7,6 +7,9 @@ export type PicksGetMany =
 export type UserWeeklyPoints =
   inferRouterOutputs<AppRouter>["analytics"]["getWeeklyPointsForUser"];
 
+export type TeamRecordsGetMany =
+  inferRouterOutputs<AppRouter>["analytics"]["getTeamRecords"];
+
 export type AnalyticsCompetitor = {
   id: string;
   name: string;
