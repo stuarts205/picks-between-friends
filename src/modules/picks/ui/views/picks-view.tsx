@@ -186,15 +186,23 @@ export const PicksView = ({ session, currentSeason }: GamesViewProps) => {
       <div className="flex flex-col md:flex-row items-start justify-between gap-3 px-3 md:px-8 w-full">
         <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
           <h1 className="text-md font-semibold mb-4">College Games</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            {college.items.map((g) => renderGameCard(g, "college-football"))}
-          </div>
+          {college.items.length === 0 ? (
+            <p className="text-sm text-gray-500 italic">No games to pick</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+              {college.items.map((g) => renderGameCard(g, "college-football"))}
+            </div>
+          )}
         </div>
         <div className="p-4 rounded-lg border w-full max-w-4xl mb-8">
           <h1 className="text-md font-semibold mb-4">NFL Games</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            {nfl.items.map((g) => renderGameCard(g, "nfl"))}
-          </div>
+          {nfl.items.length === 0 ? (
+            <p className="text-sm text-gray-500 italic">No games to pick</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+              {nfl.items.map((g) => renderGameCard(g, "nfl"))}
+            </div>
+          )}
         </div>
       </div>
     </>

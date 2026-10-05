@@ -8,6 +8,7 @@ import { UserWeeklyBarChart } from "../components/user-weekly-bar-chart";
 import { User } from "better-auth";
 import { UserPickResults } from "../components/user-pick-results";
 import { WeeklyPlayerPercentage } from "../components/weekly-player-percentage";
+import { PickedTeamStats } from "../components/picked-team-stats";
 
 interface AnalyticsViewProps {
   currentSeason: SeasonGetOne;
@@ -31,21 +32,24 @@ export const AnalyticsView = ({ currentSeason, user }: AnalyticsViewProps) => {
       </div>
       <div className="overflow-hidden rounded-md border w-full p-8">
         <UserPickResults />
-      </div> 
+      </div>
+      <div className="overflow-hidden rounded-md border w-full p-8">
+        <PickedTeamStats />
+      </div>
     </div>
   );
 };
 
 export const AnalyticsViewLoading = () => (
   <LoadingState
-    title="Loading games"
-    description="Please wait while we fetch the game list."
+    title="Loading stats"
+    description="Please wait while we fetch the stats."
   />
 );
 
 export const AnalyticsViewError = () => (
   <ErrorState
-    title="Error loading games"
-    description="There was an error fetching the game list. Please try again."
+    title="Error loading stats"
+    description="There was an error fetching the stats. Please try again."
   />
 );
