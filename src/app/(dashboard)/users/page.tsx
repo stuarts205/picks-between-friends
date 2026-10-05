@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { loadSearchParams } from "@/modules/users/params";
+import { ResetYear } from "@/modules/users/ui/components/reset-year";
 import UsersListHeader from "@/modules/users/ui/components/users-list-header";
 import UsersView, {
   UsersViewError,
@@ -14,7 +15,7 @@ import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 interface Props {
-  searchParams: Promise<SearchParams>
+  searchParams: Promise<SearchParams>;
 }
 
 const Page = async ({ searchParams }: Props) => {
@@ -28,19 +29,26 @@ const Page = async ({ searchParams }: Props) => {
   }
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(trpc.users.getMany.queryOptions({...filters}));
+  void queryClient.prefetchQuery(
+    trpc.users.getMany.queryOptions({ ...filters }),
+  );
 
   return (
-    <>
-      <UsersListHeader />
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <Suspense fallback={<UsersViewLoading />}>
-          <ErrorBoundary fallback={<UsersViewError />}>
-            <UsersView />
-          </ErrorBoundary>
-        </Suspense>
-      </HydrationBoundary>
-    </>
+    <div className="">
+      <div className="mx-4 md:mx-8 mb-4 rounded-lg border mt-4">
+        <UsersListHeader />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <Suspense fallback={<UsersViewLoading />}>
+            <ErrorBoundary fallback={<UsersViewError />}>
+              <UsersView />
+            </ErrorBoundary>
+          </Suspense>
+        </HydrationBoundary>
+      </div>
+      <div className="mx-4 md:mx-8 mb-4 rounded-lg border mt-4">
+        <ResetYear />
+      </div>
+    </div>
   );
 };
 

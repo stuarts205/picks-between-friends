@@ -20,13 +20,15 @@ const UsersView = () => {
   );
 
   return (
-    <div className="flex-1 pb-4 px-4 md:px-8 flex flex-col gap-y-4">
+    <div className="flex-1 pb-4 flex flex-col gap-y-4">
       <DataTable data={data.items} columns={columns} onRowClick={(row) => router.push(`/users/${row.id}`)} />
-      <DataPagination
-        page={filters.page}
-        totalPages={data.totalPages}
-        onPageChange={(page) => setFilters({ page })}
-      />
+      <div className="px-4 md:px-8">
+        <DataPagination
+          page={filters.page}
+          totalPages={data.totalPages}
+          onPageChange={(page) => setFilters({ page })}
+        />
+      </div>
       {data.items.length === 0 && (
         <EmptyState
           title="No users found"

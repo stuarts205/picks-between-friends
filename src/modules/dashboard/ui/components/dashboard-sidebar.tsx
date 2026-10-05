@@ -54,7 +54,7 @@ const adminSection = [
   },
   {
     icon: User2Icon,
-    label: "Current Users",
+    label: "Settings",
     href: "/users",
   },
 ];
