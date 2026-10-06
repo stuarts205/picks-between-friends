@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { game, pick, season, team, user } from "@/db/schema";
-import { eq, and, gte, inArray, isNull, sql } from "drizzle-orm";
+import { game, pick, season, user } from "@/db/schema";
+import { eq, and, gte, isNull } from "drizzle-orm";
 import { getGameScores } from "@/lib/utils";
 import { loadGamesForSeason } from "@/modules/games/server/load-games";
 
@@ -21,48 +21,8 @@ function addOneWeek(startDate: string): string {
   return `${yyyy}-${mm}-${dd} 00:00:00.0000000`;
 }
 
-// Adds one to each team's spread record for a freshly graded game: the team
-// that covered gets a win, the other team a loss. Mirrors getTeamRecords in
-// the analytics router, where failing to cover and a push both count as a
-// loss.
-async function recordTeamResults(
-  gradedGame: { homeId: string; awayId: string },
-  winner: string | null,
-  push: boolean
-) {
-  // Neither a covering team nor a push -- not really graded, so don't count.
-  if (!push && !winner) return;
-
-  const teams = await db
-    .select({ id: team.id, slug: team.slug })
-    .from(team)
-    .where(inArray(team.id, [gradedGame.homeId, gradedGame.awayId]));
-
-  // The covering team's slug should be one of the game's two teams; if it
-  // isn't, counting would credit both teams with a loss.
-  if (!push && !teams.some((t) => t.slug === winner)) {
-    console.warn(
-      `Skipping team records: winner "${winner}" matches neither team in the game`
-    );
-    return;
-  }
-
-  for (const t of teams) {
-    const covered = !push && t.slug === winner;
-    await db
-      .update(team)
-      .set(
-        covered
-          ? { win: sql`coalesce(${team.win}, 0) + 1` }
-          : { loss: sql`coalesce(${team.loss}, 0) + 1` }
-      )
-      .where(eq(team.id, t.id));
-  }
-}
-
 // Fetches one game's ESPN event and records its spread outcome once the event
-// is final. The first time a game is graded it also counts toward the two
-// teams' win/loss records. Returns whether the game was final.
+// is final. Returns whether the game was final.
 async function gradeGame(gameToGrade: GameToGrade) {
   const result = await getGameScores(
     gameToGrade.gameId,
@@ -74,32 +34,15 @@ async function gradeGame(gameToGrade: GameToGrade) {
   // ungraded rather than recording a false result.
   if (!result.isFinal) return false;
 
-  const winner = result.push ? null : (result.team?.team?.slug ?? null);
-  const values = result.push
-    ? { push: true, winner, favoriteWin: null }
-    : { winner, favoriteWin: result.covered };
-
-  // Only a game that is still ungraded gets counted toward the team records.
-  // Claiming it with a conditional update means a re-grade from the manual
-  // button, or the cron and the button running at once, can't count it twice.
-  const [firstGrade] = await db
+  await db
     .update(game)
-    .set(values)
-    .where(
-      and(
-        eq(game.id, gameToGrade.id),
-        isNull(game.winner),
-        isNull(game.push)
-      )
+    .set(
+      result.push
+        ? { push: true, winner: null, favoriteWin: null }
+        : { winner: result.team?.team?.slug ?? null, favoriteWin: result.covered }
     )
-    .returning({ homeId: game.homeId, awayId: game.awayId });
+    .where(eq(game.id, gameToGrade.id));
 
-  if (!firstGrade) {
-    await db.update(game).set(values).where(eq(game.id, gameToGrade.id));
-    return true;
-  }
-
-  await recordTeamResults(firstGrade, winner, result.push);
   return true;
 }
 
@@ -117,10 +60,10 @@ export async function gradeGames(games: GameToGrade[]) {
   const [currentWeek] = await db.select().from(season).limit(1);
   if (!currentWeek) return { gradedCount };
 
-  // Team win/loss records count every game, not just the ones the admin
-  // selected for picks, so grade the rest of the ungraded games too. The
-  // previous week is included because the season advances as soon as the
-  // selected games finish, which can be before the rest of that week's games.
+  // Set the winner on every game, not just the ones the admin selected for
+  // picks, so grade the rest of the ungraded games too. The previous week is
+  // included because the season advances as soon as the selected games finish,
+  // which can be before the rest of that week's games.
   const handledIds = new Set(games.map((g) => g.id));
   const otherUngradedGames = (
     await db
