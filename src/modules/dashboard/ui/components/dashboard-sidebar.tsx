@@ -14,8 +14,8 @@ import {
   CheckCircleIcon,
   Home,
   Target,
-  User2Icon,
-  ChartNoAxesCombined
+  ChartNoAxesCombined,
+  Settings
 } from "lucide-react";
 import Link from "next/link";
 import { GiAmericanFootballPlayer } from "react-icons/gi";
@@ -53,7 +53,7 @@ const adminSection = [
     href: "/games",
   },
   {
-    icon: User2Icon,
+    icon: Settings,
     label: "Settings",
     href: "/users",
   },
