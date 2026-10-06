@@ -83,6 +83,8 @@ export const team = pgTable("team", {
   logo: text("logo"),
   color: text("color"),
   league: text("league").notNull(),
+  win: integer("win"),
+  loss: integer("loss"),
 });
 
 export const game = pgTable("game", {
