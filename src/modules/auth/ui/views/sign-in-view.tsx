@@ -123,14 +123,14 @@ export const SignInView = () => {
                 <Button type="submit" className="w-full" disabled={pending}>
                   Sign In
                 </Button>
-                <div className="flex w-full items-center justify-end">
+                {/* <div className="flex w-full items-center justify-end">
                   <Link
                     href="/password-reset"
                     className="text-sm text-muted-foreground hover:underline hover:underline-offset-4"
                   >
                     Forgot passoword?{" "}
                   </Link>
-                </div>
+                </div> */}
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{" "}
                   <Link

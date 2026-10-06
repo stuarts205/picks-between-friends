@@ -191,16 +191,6 @@ export const SignUpView = () => {
           </div>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By signing in, you agree to our{" "}
-        <a href="/terms" target="_blank" rel="noreferrer">
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a href="/privacy" target="_blank" rel="noreferrer">
-          Privacy Policy
-        </a>
-      </div>
     </div>
   );
 };
