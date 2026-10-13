@@ -10,6 +10,10 @@
     "lint": "eslint",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "backfill:results": "tsx scripts/backfill-game-results.ts",
+    "dedupe:games": "tsx scripts/dedupe-games.ts",
+    "recompute:team-records": "tsx scripts/recompute-team-records.ts",
+    "set:team-divisions": "tsx scripts/set-team-divisions.ts",
     "test-email": "ts-node test-email.ts"
   },
   "dependencies": {

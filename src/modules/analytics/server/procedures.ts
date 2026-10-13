@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { game, pick, team, user } from "@/db/schema";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
-import { eq, exists, getTableColumns } from "drizzle-orm";
+import { eq, exists, getTableColumns, isNotNull, or } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 export const analyticsRouter = createTRPCRouter({
@@ -83,77 +83,39 @@ export const analyticsRouter = createTRPCRouter({
       a.name.localeCompare(b.name),
     );
   }),
-  // Overall spread record for every team in a game the admin selected. A team
-  // wins a graded game when it covered the spread; failing to cover and a push
-  // both count as a loss. Games that haven't been graded yet are skipped, so a
-  // team with no graded games comes back 0-0.
+  // Spread record for every NFL team and every Division I college team (FBS and
+  // FCS), straight from the team table's win/loss columns. The grader bumps them
+  // the first time a game is graded: a team wins when it covered the spread;
+  // failing to cover and a push both count as a loss. A team with no graded
+  // games has null columns and comes back 0-0.
   getTeamRecords: protectedProcedure.query(async () => {
-    const homeTeam = alias(team, "homeTeam");
-    const awayTeam = alias(team, "awayTeam");
-
-    const selectedGames = await db
+    const teams = await db
       .select({
-        league: game.league,
-        winner: game.winner,
-        push: game.push,
-        home: {
-          id: homeTeam.id,
-          name: homeTeam.name,
-          slug: homeTeam.slug,
-          logo: homeTeam.logo,
-        },
-        away: {
-          id: awayTeam.id,
-          name: awayTeam.name,
-          slug: awayTeam.slug,
-          logo: awayTeam.logo,
-        },
+        id: team.id,
+        name: team.name,
+        nickname: team.nickname,
+        logo: team.logo,
+        league: team.league,
+        wins: team.win,
+        losses: team.loss,
       })
-      .from(game)
-      .innerJoin(homeTeam, eq(game.homeId, homeTeam.id))
-      .innerJoin(awayTeam, eq(game.awayId, awayTeam.id))
-      .where(eq(game.selected, true));
+      .from(team)
+      .where(or(eq(team.league, "NFL"), isNotNull(team.division)));
 
-    const records = new Map<
-      string,
-      {
-        id: string;
-        name: string;
-        logo: string | null;
-        league: string;
-        wins: number;
-        losses: number;
-      }
-    >();
-    selectedGames.forEach(({ league, winner, push, home, away }) => {
-      // Same "graded" test the grader uses: a covering team or a push.
-      const graded = push === true || winner !== null;
-
-      [home, away].forEach((t) => {
-        const record = records.get(t.id) ?? {
-          id: t.id,
-          name: t.name,
-          logo: t.logo,
-          league,
-          wins: 0,
-          losses: 0,
-        };
-
-        if (graded) {
-          if (push !== true && t.slug !== null && t.slug === winner) {
-            record.wins += 1;
-          } else {
-            record.losses += 1;
-          }
-        }
-
-        records.set(t.id, record);
-      });
-    });
-
-    return Array.from(records.values()).sort((a, b) =>
-      a.name.localeCompare(b.name),
-    );
+    return teams
+      .map((t) => ({
+        id: t.id,
+        // NFL teams are stored by city ("New York"), which the Giants and Jets
+        // share, so show the nickname like the rest of the app does.
+        name: t.league === "NFL" ? t.nickname : t.name,
+        logo: t.logo,
+        // The team table says "College"/"NFL"; the game table (and the rest of
+        // the app) says "college-football"/"nfl".
+        league: t.league === "NFL" ? "nfl" : "college-football",
+        wins: t.wins ?? 0,
+        losses: t.losses ?? 0,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }),
   // Players are the accounts that have made at least one pick.
   getPlayers: protectedProcedure.query(async () => {

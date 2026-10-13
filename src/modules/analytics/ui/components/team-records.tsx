@@ -49,7 +49,7 @@ const TeamRow = ({ record }: { record: TeamRecord }) => (
   </div>
 );
 
-// Dropdown of every team the admin selected; shows the chosen team's record
+// Dropdown of every team; shows the chosen team's record
 // (0-0 if none of its games have been graded yet).
 const TeamRecordLookup = ({ teams }: { teams: TeamRecord[] }) => {
   const [selectedTeamId, setSelectedTeamId] = useState<string>();
@@ -124,13 +124,13 @@ export const TeamRecords = () => {
       <div>
         <h3 className="text-lg font-medium">Team Records</h3>
         <p className="text-sm text-muted-foreground">
-          How each selected team has done against the spread. A cover is a win;
-          failing to cover or a push is a loss.
+          How each team has done against the spread. A cover is a win; failing
+          to cover or a push is a loss.
         </p>
       </div>
 
       {!teams.length ? (
-        <p className="text-sm text-muted-foreground">No teams selected yet.</p>
+        <p className="text-sm text-muted-foreground">No teams found.</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {LEAGUES.map(({ key, label }) => (

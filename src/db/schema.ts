@@ -80,6 +80,8 @@ export const team = pgTable("team", {
   slug: text("slug"),
   abbreviation: text("abbreviation"),
   conference: text("conference"),
+  // "FBS" or "FCS" for Division I college teams; null for everything else.
+  division: text("division"),
   logo: text("logo"),
   color: text("color"),
   league: text("league").notNull(),

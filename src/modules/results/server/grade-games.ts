@@ -62,7 +62,7 @@ async function recordTeamResults(
 // Fetches one game's ESPN event and records its spread outcome once the event
 // is final. The first time a game is graded it also counts toward the two
 // teams' win/loss records. Returns whether the game was final.
-async function gradeGame(gameToGrade: GameToGrade) {
+export async function gradeGame(gameToGrade: GameToGrade) {
   const result = await getGameScores(
     gameToGrade.gameId,
     gameToGrade.league || "",
