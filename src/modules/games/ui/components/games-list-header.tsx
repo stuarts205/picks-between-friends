@@ -22,6 +22,16 @@ export const GamesListHeader = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
 
+  // Once the admin has picked the full slate (10 college, 5 NFL) there's
+  // nothing left to reload for, so the Reload button is hidden.
+  const selectedCollegeCount = games.items.filter(
+    (g) => g.selected && g.league === "college-football",
+  ).length;
+  const selectedNflCount = games.items.filter(
+    (g) => g.selected && g.league === "nfl",
+  ).length;
+  const allGamesSelected = selectedCollegeCount >= 10 && selectedNflCount >= 5;
+
   const loadGamesMutation = useMutation(
     trpc.games.loadForCurrentWeek.mutationOptions({
       onSuccess: async (createdGames) => {
@@ -90,7 +100,7 @@ export const GamesListHeader = () => {
                 )}
               </Button>
             )}
-            {games.items.length > 0 && (
+            {games.items.length > 0 && !allGamesSelected && (
               <Button
                 variant="outline"
                 onClick={() => reloadGames()}
