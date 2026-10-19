@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, RefreshCwIcon } from "lucide-react";
 import React, { useState } from "react";
 import { NewMeetingDialog } from "./new-game-dialog";
 import { useTRPC } from "@/trpc/client";
@@ -47,6 +47,32 @@ export const GamesListHeader = () => {
     loadGamesMutation.mutate();
   };
 
+  // Adds any of the week's ESPN games that aren't already saved -- games that
+  // are already loaded are left alone, so nothing gets duplicated.
+  const reloadGamesMutation = useMutation(
+    trpc.games.reloadForCurrentWeek.mutationOptions({
+      onSuccess: async (createdGames) => {
+        await queryClient.invalidateQueries(
+          trpc.games.getMany.queryOptions({ week: season?.week }),
+        );
+        if (createdGames.length === 0) {
+          toast.info("No missing games found for this week");
+        } else {
+          toast.success(
+            `Added ${createdGames.length} missing game${createdGames.length === 1 ? "" : "s"}`,
+          );
+        }
+      },
+      onError: (error) => {
+        toast.error(`Error reloading games: ${error.message}`);
+      },
+    }),
+  );
+
+  const reloadGames = () => {
+    reloadGamesMutation.mutate();
+  };
+
   return (
     <>
       <NewMeetingDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
@@ -62,6 +88,20 @@ export const GamesListHeader = () => {
                 {isLoading && (
                   <Loader2Icon className="animate-spin size-6 text-white" />
                 )}
+              </Button>
+            )}
+            {games.items.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => reloadGames()}
+                disabled={reloadGamesMutation.isPending}
+              >
+                {reloadGamesMutation.isPending ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <RefreshCwIcon />
+                )}
+                Reload week {season?.week} games
               </Button>
             )}
             {/* <Button onClick={() => setIsDialogOpen(true)}>

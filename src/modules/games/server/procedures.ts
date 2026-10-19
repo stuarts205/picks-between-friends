@@ -11,7 +11,7 @@ import {
   gamesUpdateWinnerSchema,
 } from "../schemas";
 import { createGames } from "./create-games";
-import { loadGamesForSeason } from "./load-games";
+import { loadGamesForSeason, loadMissingGamesForSeason } from "./load-games";
 
 export const gamesRouter = createTRPCRouter({
   loadForCurrentWeek: protectedProcedure.mutation(async () => {
@@ -25,6 +25,18 @@ export const gamesRouter = createTRPCRouter({
     }
 
     return loadGamesForSeason(currentSeason);
+  }),
+  reloadForCurrentWeek: protectedProcedure.mutation(async () => {
+    const [currentSeason] = await db.select().from(season).limit(1);
+
+    if (!currentSeason) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Current season not found",
+      });
+    }
+
+    return loadMissingGamesForSeason(currentSeason);
   }),
   selectGame: protectedProcedure
     .input(z.object({ id: z.string() }))

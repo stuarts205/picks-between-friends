@@ -29,7 +29,7 @@ export const AnalyticsView = ({ currentSeason, user }: AnalyticsViewProps) => {
         <WeeklyPlayerPercentage />
       </div>
       <div className="overflow-hidden rounded-md border w-full p-8">
-        <UserWeeklyBarChart user={user} />
+        <UserWeeklyBarChart user={user} currentWeek={currentSeason.week} />
       </div>
       <div className="overflow-hidden rounded-md border w-full p-8">
         <UserPickResults />

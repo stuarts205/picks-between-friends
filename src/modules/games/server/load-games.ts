@@ -1,3 +1,6 @@
+import { db } from "@/db";
+import { game } from "@/db/schema";
+import { inArray } from "drizzle-orm";
 import { getEventOdds, getGames, type SeasonLike } from "@/lib/utils";
 import { createGames, type GameInput } from "./create-games";
 
@@ -21,7 +24,44 @@ function teamNameForLeague(team: EspnTeam | undefined, isNFL: boolean) {
 // without an admin having to click the button.
 export async function loadGamesForSeason(season: SeasonLike) {
   const espnGames = await getGames(season);
+  return createGamesFromEspn(espnGames, season);
+}
 
+// Re-fetches the week's games from ESPN and inserts only the ones that aren't
+// already saved (matched on ESPN's game id), so games skipped on the first
+// load -- e.g. because no odds were posted yet -- can be picked up later
+// without duplicating the games that did load.
+export async function loadMissingGamesForSeason(season: SeasonLike) {
+  const espnGames = await getGames(season);
+  const espnGameIds = espnGames.map((espnGame) => espnGame.competitions[0].id);
+  if (espnGameIds.length === 0) return [];
+
+  const existingGameIds = new Set(
+    (
+      await db
+        .select({ gameId: game.gameid })
+        .from(game)
+        .where(inArray(game.gameid, espnGameIds))
+    ).map((g) => g.gameId),
+  );
+
+  // The scoreboard is fetched a day at a time, so also guard against the
+  // same event coming back more than once.
+  const seen = new Set<string>();
+  const missingGames = espnGames.filter((espnGame) => {
+    const gameId = espnGame.competitions[0].id;
+    if (existingGameIds.has(gameId) || seen.has(gameId)) return false;
+    seen.add(gameId);
+    return true;
+  });
+
+  return createGamesFromEspn(missingGames, season);
+}
+
+async function createGamesFromEspn(
+  espnGames: Awaited<ReturnType<typeof getGames>>,
+  season: SeasonLike,
+) {
   const gameInputs: GameInput[] = await Promise.all(
     espnGames.map(async (espnGame) => {
       const gameId = espnGame.competitions[0].id;
